@@ -22,4 +22,15 @@ OBS VirtualCam is fully compatible with VDO.Ninja and is useful for connecting M
 
 ## Notes
 
-Sometimes you may need to stop/restart the OBS VirtualCam if it starts crashing your computer. If you see nothing but “GREY”, then you need to start it before using it. See “How to use”. If you see just black, its probably because you haven’t put anything into OBS yet.
+Sometimes you may need to stop/restart the OBS Virtual cam if it starts crashing your computer. If you see nothing but “GREY”, then you need to start it before using it. See “How to use”. If you see just black, its probably because you haven’t put anything into OBS yet.\
+\
+\
+More related guides with more detail:
+
+{% content-ref url="../guides/use-vdo.ninja-as-a-webcam-for-google-hangouts-zoom-and-more.md" %}
+[use-vdo.ninja-as-a-webcam-for-google-hangouts-zoom-and-more.md](../guides/use-vdo.ninja-as-a-webcam-for-google-hangouts-zoom-and-more.md)
+{% endcontent-ref %}
+
+{% content-ref url="../guides/syncing-usb-audio-with-vdo.ninja-greater-than-obs-virtual-camera.md" %}
+[syncing-usb-audio-with-vdo.ninja-greater-than-obs-virtual-camera.md](../guides/syncing-usb-audio-with-vdo.ninja-greater-than-obs-virtual-camera.md)
+{% endcontent-ref %}
