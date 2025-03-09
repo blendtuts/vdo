@@ -66,3 +66,13 @@ Your audio should now be:
 4. Available as an input source in other applications
 
 You can select the virtual audio cable (VAB, BlackHole, or Soundflower) as an input in any other application to receive the delayed OBS audio. Works to sync your audio with an incoming VDO.Ninja video stream.
+
+
+
+{% content-ref url="../getting-started/mobile-phone-camera-into-webcam.md" %}
+[mobile-phone-camera-into-webcam.md](../getting-started/mobile-phone-camera-into-webcam.md)
+{% endcontent-ref %}
+
+{% content-ref url="use-vdo.ninja-as-a-webcam-for-google-hangouts-zoom-and-more.md" %}
+[use-vdo.ninja-as-a-webcam-for-google-hangouts-zoom-and-more.md](use-vdo.ninja-as-a-webcam-for-google-hangouts-zoom-and-more.md)
+{% endcontent-ref %}
