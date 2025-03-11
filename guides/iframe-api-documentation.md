@@ -372,6 +372,14 @@ This is a great way to configure, edit, listen to, and control VDO.Ninja, withou
 
 It's possible to transmit uncompressed video frames and audio data from VDO.Ninja to the parent window using the post-mesasging API. This allows video playback to happen outside the IFrame itself, using your own custom mixing logic. See[ https://versus.cam](https://versus.cam) for a code example; the website is on Steve's GitHub for reference.  Please note, this may require a custom deployment of VDO.Ninja's website code (SameOriginPolicy), and likely will also require a recent Chromium-based browser to use.
 
+### Securing your stream ID
+
+Using the \&audience option, you can have a consistent stream ID on your website that only you can publish to. Great for using VDO.Ninja as a small scale broadcast player on a personal website.
+
+{% content-ref url="../advanced-settings/setup-parameters/and-audience.md" %}
+[and-audience.md](../advanced-settings/setup-parameters/and-audience.md)
+{% endcontent-ref %}
+
 ### All to happy to support the IFRAME API
 
 Please feel free to follow me in the VDO.Ninja Discord channel ([discord.vdo.ninja](https://discord.com/invite/T4xpQVv)) where I post news about updates and listen to requests. The upcoming version of VDO.Ninja is also often hosted at [https://vdo.ninja/beta](https://vdo.ninja/beta), where you can explore new features and help crush any unexpected bugs.
