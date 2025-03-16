@@ -603,7 +603,7 @@
   * [Can't auto-start screen sharing](common-errors-and-known-issues/cant-auto-start-screen-sharing.md)
   * [Audio Clicking / Popping / Distortion](common-errors-and-known-issues/audio-clicking-popping-distortion.md)
   * [Can't share my screen](common-errors-and-known-issues/cant-share-my-screen.md)
-  * [Nothing shows up in OBS or it is choppy](common-errors-and-known-issues/nothing-shows-up-in-obs-or-it-is-choppy.md)
+  * [Nothing shows up in OBS](common-errors-and-known-issues/nothing-shows-up-in-obs.md)
   * [Already in use or claimed errors](common-errors-and-known-issues/already-in-use-or-claimed-errors.md)
   * [Blue spinning window](common-errors-and-known-issues/blue-spinning-window.md)
   * [Cursor shows trailing or artifacting](common-errors-and-known-issues/cursor-shows-trailing-or-artifacting.md)
