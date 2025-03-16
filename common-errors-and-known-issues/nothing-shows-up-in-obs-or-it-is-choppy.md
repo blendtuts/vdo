@@ -8,9 +8,12 @@ description: >-
 
 ### Common causes for no video showing up in OBS are the following:
 
-* Check OBS hardware acceleration settings - Enable or disable "Browser Source Hardware Acceleration" in OBS advanced settings
-* Run OBS as Administrator (for Windows users) - This can resolve permission-related issues affecting video capture
-* Try a different network connection - Switch between WiFi and cellular, or use a VPN to bypass potential network restrictions, or disable any VPN in use
+* Check OBS hardware acceleration settings
+  * Enable or disable "Browser Source Hardware Acceleration" in OBS advanced settings
+* Run OBS as Administrator (for Windows users)
+  * This can resolve permission-related issues affecting video capture
+* Try a different network connection
+  * Switch between WiFi and cellular, or use a VPN to bypass potential network restrictions, or disable any VPN in use
 * Your stream ID changed, entered incorrectly, or other setting / parameter is incorrect
 * Try using a different browser to publish with; try Firefox, Edge, Chrome, or even the [native app](../steves-helper-apps/native-mobile-app-versions.md).
 
@@ -18,7 +21,7 @@ description: >-
 
 * Switch to Ethernet or try to [improve your WiFI ](packet-loss.md)/ Internet connection
 * Increase the [video bitrate](../advanced-settings/video-bitrate-parameters/bitrate.md), especially if[ streaming a game](../guides/how-to-screen-share-in-1080p.md)
-* Ensure your computer is not overloaded, especially in [larger group rooms](nothing-shows-up-in-obs.md#performance-optimization)
+* Ensure your computer is not overloaded, especially in [larger group rooms](nothing-shows-up-in-obs-or-it-is-choppy.md#performance-optimization)
 * If issues only exist for guests in a room, consider using [\&meshcast](../steves-helper-apps/meshcast.io.md) or increase the [total room bitrate](../advanced-settings/video-bitrate-parameters/totalroombitrate.md)
 
 {% content-ref url="packet-loss.md" %}
@@ -122,7 +125,7 @@ description: >-
 
 #### Alternative Solutions
 
-* Download Electron Capture app instead of using OBS browser source: [https://github.com/steveseguin/electroncapture](https://github.com/steveseguin/electroncapture)
+* Download Electron Capture app instead of using OBS browser source:[ http://electroncapture.app](http://electroncapture.app)
 * Consider using Cloud-hosted version of OBS (Paperspace or AWS with Parsec)
 
 #### OBS WHIP Issues

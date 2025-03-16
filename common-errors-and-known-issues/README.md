@@ -19,7 +19,7 @@
 * [cant-auto-start-screen-sharing.md](cant-auto-start-screen-sharing.md "mention")
 * [audio-clicking-popping-distortion.md](audio-clicking-popping-distortion.md "mention")
 * [cant-share-my-screen.md](cant-share-my-screen.md "mention")
-* [nothing-shows-up-in-obs.md](nothing-shows-up-in-obs.md "mention")
+* [nothing-shows-up-in-obs-or-it-is-choppy.md](nothing-shows-up-in-obs-or-it-is-choppy.md "mention")
 * [already-in-use-or-claimed-errors.md](already-in-use-or-claimed-errors.md "mention")
 * [blue-spinning-window.md](blue-spinning-window.md "mention")
 * [cursor-shows-trailing-or-artifacting.md](cursor-shows-trailing-or-artifacting.md "mention")
