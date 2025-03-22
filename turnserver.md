@@ -23,6 +23,9 @@ WebRTC tries to establish peer-to-peer connections using the following methods, 
 The installer script automates the complete TURN server setup process:
 
 ```bash
+sudo apt-get install
+sudo apt-get upgrade
+
 # Download the installer
 wget https://raw.githubusercontent.com/steveseguin/vdo.ninja/develop/turnserver_install.sh.sample
 mv turnserver_install.sh.sample turnserver_install.sh
