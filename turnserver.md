@@ -43,6 +43,8 @@ The installer will:
 5. Create systemd service for auto-start
 6. Configure proper permissions
 
+Note: You may need to configure your firewall first for Certbot to work, and I recommend running `apt update` and `apt upgrade` first.
+
 ## Basic Configuration Explained
 
 The basic configuration (`turnserver_basic.conf`) provides a minimal but functional TURN server:
