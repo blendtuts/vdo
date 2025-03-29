@@ -69,7 +69,6 @@ Many WebRTC issues that affect VDO.Ninja are documented by related services and 
 
 **macOS**
 
-* Streamlabs (SLOBS) doesn't support VDO.Ninja directly (use Electron Capture app or regular OBS)
 * Bluetooth headphones may cause audio clicking, especially on battery power
 * Safari has poor noise/echo cancellation (use Chromium-based browsers)
 * Check for enabled Reactions/Presenter Overlay effects during videoconferencing
