@@ -4,45 +4,97 @@ description: Known issues or problems, bugs, and limitations
 
 # Known issues
 
-Known issues that are most critical and up-to-date are normally listed on the main page of [VDO.Ninja](https://vdo.ninja/).
-
-You can also refer to the #report-bugs channel on [Discord](https://discord.com/invite/cKkj5nN8pH), to see recently reported issues. I push bug fixes daily to beta, at [https://vdo.ninja/beta](https://vdo.ninja/beta), so give that a shot if you find a bug on the main release.
-
-Below are some links to third parties, for a list of known issues that commonly will apply to VDO.Ninja as well. They might have some issues not yet reported here and are often up to date.
-
-[https://docs.agora.io/en/All/web\_sdk\_compatibility?platform=Web](https://docs.agora.io/en/All/web_sdk_compatibility?platform=Web)\
+VDO.Ninja maintains several resources to help you identify and resolve issues as they arise. The most critical and up-to-date issues are typically listed directly on the VDO.Ninja main page for quick reference.\
 \
-[https://github.com/twilio/twilio-video.js/blob/master/COMMON\_ISSUES.md](https://github.com/twilio/twilio-video.js/blob/master/COMMON_ISSUES.md)\
-\
-[https://support.twilio.com/hc/en-us/articles/223180908-Troubleshooting-Common-Problems-with-the-Twilio-Voice-JavaScript-SDK](https://support.twilio.com/hc/en-us/articles/223180908-Troubleshooting-Common-Problems-with-the-Twilio-Voice-JavaScript-SDK)\
-\
-[https://github.com/webrtc/samples/issues](https://github.com/webrtc/samples/issues)\
-\
-[https://bugs.chromium.org/p/chromium/issues/list?q=webrtc%20type%3DBug\&can=2\&sort=-pri](https://bugs.chromium.org/p/chromium/issues/list?q=webrtc%20type%3DBug\&can=2\&sort=-pri)
+For community-reported problems, check the #report-bugs channel [on our Discord](https://discord.vdo.ninja) where users actively share their experiences.&#x20;
 
-Time fixes all wounds, even with Apple products.
+### Finding Current Issues
 
-Below are more possible/past issues, although the list is not often curated and can be assumed to be out of date.
+* **Official Sources**: Check the main page of VDO.Ninja for critical and up-to-date issues
+* **Discord**: Refer to the #report-bugs channel for recently reported issues
+* **Alpha Version**: Try https://vdo.ninja/alpha for the latest bug fixes (updated daily)
 
-* Grey video loaded from guest in room. Try adding [`&scale=100`](../advanced-settings/view-parameters/scale.md) and remove any bitrate limits set. If the issue persists, try a different video codec ([`&codec=vp9`](../advanced-settings/view-parameters/codec.md), for example) or ask the guest to connect with [`&quality=2`](../advanced-settings/video-parameters/and-quality.md) (smooth and cool).
-*   OBS browser sources crash, turning all black. This can happen after refreshing/editing a browser source URL or just randomly. Restarting OBS can fix the issue, but to prevent the issue, try using:\
-    \
-    &#x20;`"C:\Program Files\obs-studio\bin\64bit\obs64.exe" --enable-media-stream --disable-gpu-process-crash-limit`
+### Third-Party Resources
 
-    \
-    You can add \`--`` disable-gpu-process-crash-limit` `` to the OBS start up properties as a way to avoid this. There will still be an issue. You can also use the Electron Capture app instead of the OBS browser source.
-* All green or all purple video from a mobile device (Pixel, Samsung Galaxy) can sometimes happen with certain resolutions or orientations. Using `&scale=100` or `&scale=95` can sometimes help (viewer side), but also changing the video codec to `&codec=vp8` might help.
-* OBS on PC can have video become corrupted if there is moderate or heavy packet loss. Changing the video codec to vp9 or h264 can fix it for moderate packet loss, but for heavy packet loss using the Electron Capture app is suggested. You can also issue keyframes with the rainbow puke button in the Director's room or refresh the viewing page, but it's a temporary fix. Ideally, fixing the packet loss itself is the ideal solution.
-* Streamlabs (SLOBS) on macOS does not currently support VDO.Ninja directly; you'll need to use the Electron Capture app or the normal OBS version instead.
-* OBS on PC can sometimes run into a Max Buffer Limit Reached error, which can cause the audio to become delayed by seconds or simply stop being captured at all. Using the Electron Capture app to capture audio can avoid this problem.
-* Some browser-extensions will cause webRTC to fail. Try loading VDO.Ninja in incognito mode or try using the Electron Capture app instead.
-* On most modern browsers, a user will need to click the browser window before the video will play. This goes for vMix and for Firefox/Chrome. This is not the case for OBS or the Electron Capture app, however.
-* Android 11 users using Chrome may need to push the app to the background, and then foreground it again, to unfreeze the video camera when it loads or changes camera sources.
-* iOS (iPhone) users using Safari 13 may sometimes not send audio.
-* iOS (iPhone) users sometimes cannot access their camera until they close all other Safari browser tabs. If it still does not work, using the native iOS app on the App Store may work; "Capture for VDO.Ninja".
-* Chrome on iOS only works for iOS 14.3 and newer. It will not work with VDO.Ninja on older iOS versions.
-* iOS 12 and newer is required for VDO.Ninja to work; older iPads may not work as a result.
-* Firefox on Android has numerous bugs that may cause connections to not always work; more prone to happen in larger group rooms.
-* Setting an audio bitrate to 64-kbps or higher can cause video to get stuck at near-zero bitrate. I've tried to account for this bug, but setting a higher video bitrate seems to help avoid the issue as well.
-* Bluetooth headphones on macOS, especially when using battery power, can cause audio-clicking on outbound audio.
-* Safari on macOS does not have the greatest noise or echo-cancellation, causing poor audio performance. Use a Chromium-based browser instead for the best audio quality.
+Many WebRTC issues that affect VDO.Ninja are documented by related services and projects. The following resources often contain valuable troubleshooting information applicable to VDO.Ninja, sometimes identifying issues not yet reported in our documentation:\
+
+
+* [Agora Web SDK Compatibility](https://docs.agora.io/en/All/web_sdk_compatibility?platform=Web)
+* [Twilio Video.js Common Issues](https://github.com/twilio/twilio-video.js/blob/master/COMMON_ISSUES.md)
+* [Twilio Voice JavaScript SDK Troubleshooting](https://support.twilio.com/hc/en-us/articles/223180908-Troubleshooting-Common-Problems-with-the-Twilio-Voice-JavaScript-SDK)
+* [WebRTC Samples Issues](https://github.com/webrtc/samples/issues)
+* [Chromium WebRTC Bug List](https://bugs.chromium.org/p/chromium/issues/list?q=webrtc%20type%3DBug\&can=2\&sort=-pri)
+
+### Common Issues and Solutions
+
+#### Video Issues
+
+| Issue                                   | Solution                                                                                                       |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Grey video from guest in room           | Add `&scale=100`, remove bitrate limits, try different codecs (`&codec=vp9`), or ask guest to use `&quality=2` |
+| Green/purple video from mobile          | Use `&scale=100` or `&scale=95` on viewer side, or change codec to `&codec=vp8`                                |
+| Corrupted video in OBS with packet loss | Change codec to vp9/h264, use Electron Capture app, or issue keyframes with the rainbow button                 |
+| Blank browser source in OBS             | Disable hardware acceleration or refer to the help guide                                                       |
+| Video camera freeze on Android 11       | Push app to background then foreground when camera loads or changes                                            |
+| Camera freezes in Chrome/Chromium v131  | Try alternative browser versions                                                                               |
+| Camlink freezing when already in use    | Ensure device isn't being used elsewhere before selecting                                                      |
+| USB 3.x video device issues             | Avoid USB hubs and use quality/short cables directly to computer                                               |
+
+#### OBS Specific Issues
+
+| Issue                                        | Solution                                                                                                                     |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Black screen after refreshing browser source | Launch OBS with: `"C:\Program Files\obs-studio\bin\64bit\obs64.exe" --enable-media-stream --disable-gpu-process-crash-limit` |
+| Audio delay/Max Buffer Limit                 | Use Electron Capture app for audio instead                                                                                   |
+| Audio/video desync                           | Check GPU hardware acceleration settings in Windows Display settings                                                         |
+| Performance issues                           | Launch OBS in Administrator mode                                                                                             |
+| Overheating on laptops                       | Use a system with active cooling for productions over 30 minutes                                                             |
+
+#### Platform Specific Issues
+
+**iOS/iPhone/iPad**
+
+* iOS 12+ required (older iPads may not work)
+* Safari 13 may sometimes not send audio
+* May need to close all other Safari tabs to access camera
+* Chrome only works on iOS 14.3+
+* Try "Capture for VDO.Ninja" app from App Store
+* USB audio devices often don't work with iOS WebRTC
+
+**Android**
+
+* Firefox has bugs in larger group rooms
+* Chrome may need background/foreground toggle for camera
+* USB audio often doesn't work with Chrome (use Firefox or 3.5mm TRRS adapters)
+
+**macOS**
+
+* Streamlabs (SLOBS) doesn't support VDO.Ninja directly (use Electron Capture app or regular OBS)
+* Bluetooth headphones may cause audio clicking, especially on battery power
+* Safari has poor noise/echo cancellation (use Chromium-based browsers)
+* Check for enabled Reactions/Presenter Overlay effects during videoconferencing
+
+**Windows**
+
+* Check Windows Sound Properties for Voice Focus settings (Windows 11)
+* Hardware-accelerated GPU scheduling may cause audio sync issues
+* Ensure OBS is launched in Administrator mode
+
+#### Audio Issues
+
+* Setting audio bitrate to 64kbps+ may cause video bitrate issues (set higher video bitrate to compensate)
+* Check for misaligned or high audio sample rates in OBS
+* Bluetooth headphones can cause audio clicking, especially on macOS
+* USB audio devices have limited compatibility with mobile WebRTC
+
+### Alternative Solutions
+
+* **Electron Capture App**: Often solves issues with browser sources, audio buffer limits, and browser extension conflicts
+* **Native iOS App**: "Capture for VDO.Ninja" available on App Store
+* **Browser Selection**: Chromium-based browsers often have better performance than Safari or Firefox for certain use cases
+
+### General Tips
+
+* Click browser window before video will play (vMix, Firefox, Chrome) - not needed for OBS/Electron
+* Browser extensions can cause WebRTC failures - try incognito mode
+* Active cooling systems recommended for extended streaming sessions
