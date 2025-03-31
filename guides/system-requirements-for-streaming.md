@@ -22,6 +22,11 @@ System requirements will vary from user to user, and use case to use case, so th
 
 Note: More powerful CPUs will handle multiple streams and VDO.Ninja cameras better. Each additional VDO.Ninja published stream will require more CPU power due to WebRTC's CPU-intensive nature. If using a GPU to accelerate the video encoding, a quad-core computer may also be minimally sufficient.
 
+**Cooling**
+
+* Your computer should have an active cooling solution, especially the CPU
+* If using a laptop or mini PC, it should have at least an internal fan to keep the system cool
+
 #### GPU
 
 * Minimum: NVIDIA GTX 1660 or AMD RX 570
