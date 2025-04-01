@@ -133,7 +133,7 @@
     "enable": "Activar",
     "stop": "Detener",
     "cycle-between-audio-visualizations": "Alternar entre varios estilos de visualizaciones de audio",
-    "cleaer-sites-local-storage": "Limpiar almacenamiento local del navegador y configuraciones guardadas del sitio", // NOTE: Original key has typo 'cleaer'
+    "cleaer-sites-local-storage": "Limpiar almacenamiento local del navegador y configuraciones guardadas del sitio",
     "open-in-new-tab": "Abrir en una pestaña nueva",
     "copy-to-clipboard": "Copiar al portapapeles",
     "edit-url": "Editar URL manualmente",
@@ -231,17 +231,17 @@
     "create-reusable-invite": "Crear una invitación reutilizable",
     "here-you-can-pre-generate": "Aquí puedes generar un enlace reutilizable como fuente del navegador e invitados.",
     "generate-invite-link": "GENERAR EL ENLACE DE INVITACIÓN",
-    "quality-paramaters": "Ajustes de calidad", // NOTE: Original key has typo 'paramaters'
+    "quality-paramaters": "Ajustes de calidad",
     "force-vp9-video-codec": "Forzar Códec de Video VP9 (menos artefactos)",
     "enable-stereo-and-pro": "Habilitar Estéreo y Pro Audio HD",
     "video-resolution": "Resolución de vídeo: ",
-    "general-paramaters": "Opciones de usuario", // NOTE: Original key has typo 'paramaters'
+    "general-paramaters": "Opciones de usuario",
     "allow-effects-invite": "Permitir el uso de efectos de video",
     "hide-mic-selection": "Forzar Micrófono Predeterminado",
     "hide-screen-share": "Ocultar opción compartir pantalla",
     "obfuscate_url": "Ofuscar la URL de Invitación",
     "add-a-password-to-stream": " Añadir contraseña:",
-    "interview-paramaters": "Chat bidireccional", // NOTE: Original key has typo 'paramaters'
+    "interview-paramaters": "Chat bidireccional",
     "generate-host-link": "Crear un enlace para el anfitrión",
     "add-the-guest-to-a-room": " Añadir invitado a una sala:",
     "invite-group-chat-type": "Este invitado de la sala puede:",
@@ -293,7 +293,7 @@
     "undeafen": "Reactivar audio remoto",
     "unblind": "Mostrar videos al invitado",
     "advanced": "Avanzado ",
-    "advanced-paramaters": "Parámetros Avanzados", // NOTE: Original key has typo 'paramaters'
+    "advanced-paramaters": "Parámetros Avanzados", 
     "allow-remote-control": "Control remoto del zoom de la cámara (Android)",
     "more-than-four-can-join": "Estos espacios para invitados son sólo un ejemplo. Pueden unirse más de cuatro invitados.",
     "toggle-control-video": "Barra de Control",
@@ -717,7 +717,7 @@
     "ios-no-screen-share": "Lo sentimos, pero tu navegador iOS no admite compartir pantalla.\n\nPor favor, consulta <a href='https://docs.vdo.ninja/guides/screen-share-your-iphone-ipad' target='_blank'>esta guía</a> para un método alternativo.",
     "android-no-screen-share": "Lo sentimos, tu navegador móvil no admite compartir pantalla.\n\nLa <a href='https://docs.vdo.ninja/getting-started/native-mobile-app-versions' target='_blank'>aplicación nativa de Android</a> ofrece soporte básico para ello.",
     "no-screen-share-supported": "Lo sentimos, tu navegador no admite compartir pantalla.\n\nPor favor, usa las versiones de escritorio de Firefox o Chrome en su lugar.",
-    "speech-not-suppoted": "⚠ El Reconocimiento de Voz no es compatible con este navegador", // NOTE: Original key has typo 'suppoted'
+    "speech-not-suppoted": "⚠ El Reconocimiento de Voz no es compatible con este navegador",
     "blue-yeti-tip": "<i>Consejo:</i> Los micrófonos Blue Yeti pueden experimentar problemas de volumen excesivo. <a href='https://support.google.com/chrome/thread/7542181?hl=en&msgid=79691143'>Consulta aquí</a> para una solución o desactiva la ganancia automática en VDO.Ninja.",
     "site-not-responsive": "<h3>Aviso: No se puede acceder al sistema o actualmente responde con lentitud.</h3>\nSi es un problema de enrutamiento, intenta añadir <i title='o prueba visitando https://proxy.vdo.ninja/'>&proxy</i> a la URL; también puedes probar <i>https://proxy.vdo.ninja</i> o una VPN si el servicio está bloqueado en tu país.\n\nSi el servicio principal está caído, una versión de respaldo también está disponible aquí: <i>https://backup.vdo.ninja</i>\n\nPonte en contacto con steve@seguin.email para obtener ayuda adicional.\n\nEste servicio requiere el uso de Websockets sobre el puerto 443.",
     "no-audio-source-detected": "No se detectó ninguna Fuente de Audio.\n\nSi querías capturar el Audio de una Aplicación, por favor consulta:\nhttps://docs.vdo.ninja/help/guides-and-how-tos#audio para algunas guías.",
