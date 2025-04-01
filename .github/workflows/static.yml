@@ -32,7 +32,7 @@ jobs:
       
       # Create artifact for reference, without GitHub Pages dependency
       - name: Archive website content
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cloudflare-pages
           path: '.'
