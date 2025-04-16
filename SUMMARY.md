@@ -640,6 +640,7 @@
   * [Can't turn off echo-cancellation on macOS](common-errors-and-known-issues/cant-turn-off-echo-cancellation-on-macos.md)
   * [Video lag grows over time](common-errors-and-known-issues/video-lag-grows-over-time.md)
   * [Can't connect unless via VPN](common-errors-and-known-issues/cant-connect-unless-via-vpn.md)
+  * [Improving vMix performance](common-errors-and-known-issues/improving-vmix-performance.md)
 * [Platform specific issues](platform-specific-issues/README.md)
   * [Android](platform-specific-issues/android.md)
   * [macOS](platform-specific-issues/macos.md)
