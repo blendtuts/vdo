@@ -1,6 +1,12 @@
 # Releases
 
-## Release Notes
+## ℹ️ Release Notes are being moved to GitHub
+
+Please see: [https://github.com/steveseguin/vdo.ninja](https://github.com/steveseguin/vdo.ninja) for the current release and release notes\
+\
+You can also check out the #releases section on the Discord server; https://discord.vdo.ninja
+
+## Past Release Notes
 
 * [V24](../releases/v24.md) (updated December 19th 2023) [https://vdo.ninja/](https://vdo.ninja/)
 * [V23](../releases/v23.md) (updated May 8th 2023) [https://vdo.ninja/v23/](https://vdo.ninja/v23/)
@@ -24,8 +30,8 @@
 * V9 (updated July 20th 2020) [https://obs.ninja/v9](https://obs.ninja/v9)
 * [V8](../releases/v8.md) (updated May 28th 2020) [https://obs.ninja/v8](https://obs.ninja/v8)
 * V7 (updated June 17th 2020) [https://obs.ninja/v7](https://obs.ninja/v7)
-* [V6](https://www.reddit.com/r/OBSNinja/comments/gy7h4g/site\_updated\_on\_june\_7th\_please\_find\_the\_change/) (updated May 21st 2020) [https://obs.ninja/v6](https://obs.ninja/v6)
-* [V5](https://www.reddit.com/r/OBSNinja/comments/gobivl/new\_version\_released\_performance\_improvements/) (updated May 21st 2020) [https://obs.ninja/v5](https://obs.ninja/v5)
-* [V4](https://www.reddit.com/r/OBSNinja/comments/gf5pd3/new\_version\_released\_today\_along\_with\_new/) (updated May 7th 2020) [https://obs.ninja/v4](https://obs.ninja/v4)
+* [V6](https://www.reddit.com/r/OBSNinja/comments/gy7h4g/site_updated_on_june_7th_please_find_the_change/) (updated May 21st 2020) [https://obs.ninja/v6](https://obs.ninja/v6)
+* [V5](https://www.reddit.com/r/OBSNinja/comments/gobivl/new_version_released_performance_improvements/) (updated May 21st 2020) [https://obs.ninja/v5](https://obs.ninja/v5)
+* [V4](https://www.reddit.com/r/OBSNinja/comments/gf5pd3/new_version_released_today_along_with_new/) (updated May 7th 2020) [https://obs.ninja/v4](https://obs.ninja/v4)
 * V3 (updated April 21st 2020) [https://obs.ninja/v3](https://obs.ninja/v3)
-* [V2](https://www.reddit.com/r/OBSNinja/comments/fwr3fy/obs\_ninja\_just\_updated\_new\_experimental/) (updated April 7th 2020) [https://obs.ninja/v2](https://obs.ninja/v2)
+* [V2](https://www.reddit.com/r/OBSNinja/comments/fwr3fy/obs_ninja_just_updated_new_experimental/) (updated April 7th 2020) [https://obs.ninja/v2](https://obs.ninja/v2)
