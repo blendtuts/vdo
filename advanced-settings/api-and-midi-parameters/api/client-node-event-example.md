@@ -84,9 +84,24 @@ class VDONinjaMonitor {
       
       // You could trigger additional actions here
     }
-    
+    // Handle alternative connection event
+    else if (message.action === 'push-connection' && (message.value === true || message.value === "true")) {
+      const streamID = message.streamID;
+      console.log(`Stream connected (via push-connection): ${streamID}`);
+      
+      // Store stream info or update existing
+      if (!this.streams[streamID]) {
+        this.streams[streamID] = {
+          connected: true,
+          connectTime: new Date()
+        };
+      } else {
+        this.streams[streamID].connected = true;
+        this.streams[streamID].reconnectTime = new Date();
+      }
+    }
     // Handle disconnection events
-    else if (message.action === 'push-connection' && message.value === false) {
+    else if (message.action === 'push-connection' && (message.value === false || message.value === "false")) {
       const streamID = message.streamID;
       console.log(`Stream disconnected: ${streamID}`);
       
@@ -137,6 +152,36 @@ class VDONinjaMonitor {
             this.streams[streamID].disconnectTime = new Date();
           }
         });
+      }
+    }
+    
+    // Handle action-specific events
+    else if (message.action) {
+      switch (message.action) {
+        case 'remote-mute-state':
+          // Handle remote mute state changes
+          if (message.streamID && this.streams[message.streamID]) {
+            this.streams[message.streamID].remoteMuted = message.value;
+            console.log(`Stream ${message.streamID} remote mute state: ${message.value}`);
+          }
+          break;
+          
+        case 'remote-video-mute-state':
+          // Handle remote video mute state changes
+          if (message.streamID && this.streams[message.streamID]) {
+            this.streams[message.streamID].videoMuted = message.value;
+            console.log(`Stream ${message.streamID} video mute state: ${message.value}`);
+          }
+          break;
+        
+        case 'director':
+        case 'codirector':
+          // Handle director status changes
+          if (message.streamID && this.streams[message.streamID]) {
+            this.streams[message.streamID].isDirector = message.value;
+            console.log(`Stream ${message.streamID} director state: ${message.value}`);
+          }
+          break;
       }
     }
   }
