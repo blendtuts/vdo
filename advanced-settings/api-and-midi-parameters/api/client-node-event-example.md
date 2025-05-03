@@ -4,6 +4,8 @@ description: Simple VDO.Ninja API WebSocket Client Example
 
 # Client (node) event example
 
+While I'm a fan of just connecting and seeing what the API outputs, based on different events/actions, here's some code to get you started with basic incoming connection detection.
+
 ## Simple VDO.Ninja API WebSocket Client Example
 
 Here's a NodeJS example that demonstrates how to:
