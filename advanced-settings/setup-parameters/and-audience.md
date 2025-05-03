@@ -4,7 +4,7 @@ description: Secure Public Stream Publishing
 
 # \&audience
 
-The `&audience` parameter in VDO.Ninja enables secure public stream publishing, ideal for website [embedding (using Iframes)](../../guides/iframe-api-documentation.md) while preventing unauthorized publishing.
+The `&audience` parameter in VDO.Ninja enables secure public stream publishing, ideal for website [embedding (using Iframes)](../../guides/iframe-api-documentation/) while preventing unauthorized publishing.
 
 ### Key Features
 

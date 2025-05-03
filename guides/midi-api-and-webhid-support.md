@@ -32,8 +32,8 @@ The HTTP and websocket make use of a server to route API calls. If you'd like to
 
 The IFRAME API is the most powerful option, but it requires some basic coding on your own part to have it provide hotkey functionality for your specific requirement.
 
-{% content-ref url="iframe-api-documentation.md" %}
-[iframe-api-documentation.md](iframe-api-documentation.md)
+{% content-ref url="iframe-api-documentation/" %}
+[iframe-api-documentation](iframe-api-documentation/)
 {% endcontent-ref %}
 
 Below is an example of how to remotely control OBS anywhere online using the VDO.Ninja IFrame API; the code is just an example of how to use the IFrame API with OBS in this case, and it not intended to be used in production as is. The core concept lets you relay data messages from one website page to another, peer to peer, with just a few lines of code!

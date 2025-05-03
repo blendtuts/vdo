@@ -34,7 +34,7 @@
 * [lowest-audio-latency-possible.md](lowest-audio-latency-possible.md "mention")
 * [share-webcam-from-inside-obs.md](share-webcam-from-inside-obs.md "mention")
 * [publish-to-facebook-live.md](publish-to-facebook-live.md "mention")
-* [iframe-api-documentation.md](iframe-api-documentation.md "mention")
+* [iframe-api-documentation](iframe-api-documentation/ "mention")
 * [use-the-green-screen-just-locally.md](use-the-green-screen-just-locally.md "mention")
 * [connect-a-gopro-to-vdo.ninja.md](connect-a-gopro-to-vdo.ninja.md "mention")
 * [installing-raspninja-on-jetson.md](installing-raspninja-on-jetson.md "mention")
