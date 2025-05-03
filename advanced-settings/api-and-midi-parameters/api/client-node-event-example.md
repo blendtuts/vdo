@@ -286,3 +286,17 @@ You can extend this example to:
 * Log connection events to a database
 * Trigger actions based on specific stream events
 * Control streams or layouts based on connection patterns
+
+### Usage on links
+
+Any link type that connects to a stream can use the API parameter to detect the incoming media connection status:
+
+1. **View link**: `https://vdo.ninja/?view=streamID&api=myapikey` - Detects when the broadcaster you're viewing connects/disconnects
+2. **Scene link**: `https://vdo.ninja/?scene&view=streamID&api=myapikey` - Shows the video while monitoring connection status
+3. **Director link**: `https://vdo.ninja/?director=roomname&api=myapikey` - Monitors all connections in a specific room
+
+Each option enables the WebSocket API that sends events when streams connect or disconnect. The monitoring code works with any of these link types, though director links provide the most comprehensive monitoring if you're using rooms.\
+\
+The key difference is which connection events you'll receive - view links only report on the specific stream being viewed, while director links report on all room participants.\
+\
+You can also detect events from publishers, or those pushing media streams, however each publisher may need the `&api` added to detect when they go live. When they disconnect, you may or may not get a notification from them that they are hanging up — it depends on if they do a proper hang-up or a hard-close.
