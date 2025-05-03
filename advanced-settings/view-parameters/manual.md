@@ -14,6 +14,6 @@ This is an advanced feature, for primarily developers, who wish to utilize their
 
 ## Related
 
-{% content-ref url="../../guides/iframe-api-documentation/" %}
-[iframe-api-documentation](../../guides/iframe-api-documentation/)
+{% content-ref url="../../guides/iframe-api-documentation.md" %}
+[iframe-api-documentation.md](../../guides/iframe-api-documentation.md)
 {% endcontent-ref %}

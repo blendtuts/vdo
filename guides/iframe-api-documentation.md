@@ -47,13 +47,13 @@ Something else to note about this IFrame API is that it can not only be controll
 
 Some of the more interesting ones primarily for IFrame users might include:
 
-* [`&webcam`](../../source-settings/and-webcam.md)
-* [`&screenshare`](../../source-settings/screenshare.md)
-* [`&videodevice`](../../source-settings/videodevice.md)`=`1 or 0
-* [`&audiodevice`](../../source-settings/audiodevice.md)`=`1 or 0
-* [`&autostart`](../../source-settings/and-autostart.md)
-* [`&chroma`](../../advanced-settings/design-parameters/chroma.md)
-* [`&transparent`](../../advanced-settings/design-parameters/and-transparent.md)
+* [`&webcam`](../source-settings/and-webcam.md)
+* [`&screenshare`](../source-settings/screenshare.md)
+* [`&videodevice`](../source-settings/videodevice.md)`=`1 or 0
+* [`&audiodevice`](../source-settings/audiodevice.md)`=`1 or 0
+* [`&autostart`](../source-settings/and-autostart.md)
+* [`&chroma`](../advanced-settings/design-parameters/chroma.md)
+* [`&transparent`](../advanced-settings/design-parameters/and-transparent.md)
 * As for API, allow for dynamic messaging, below are examples of the options available:
 * Mute Speaker
 * Mute Mic
@@ -320,7 +320,7 @@ https://vdo.ninja/iframe can demonstrate this by opening https://vdo.ninja/?tran
 
 There's some users who wish to have an SDK instead of an IFrame API. While an SDK may happen eventually, currently the IFram API is surprisingly capable.
 
-If you wish to use your own video mixer logic for example, you can disable the existing auto-mixer logic that currently exists using the [`&manual`](../../advanced-settings/view-parameters/manual.md) flag. You can then access the `srcObject` of each of the video elements in VDO.Ninja and pull those streams into the parent frame to manipulate or to connect to the parent DOM.&#x20;
+If you wish to use your own video mixer logic for example, you can disable the existing auto-mixer logic that currently exists using the [`&manual`](../advanced-settings/view-parameters/manual.md) flag. You can then access the `srcObject` of each of the video elements in VDO.Ninja and pull those streams into the parent frame to manipulate or to connect to the parent DOM.&#x20;
 
 If you aren't self-hosting the code, you may run into cross origin permission issues or limitations on cross-origin permissions with certain features. You can get around these issues usually by hosting VDO.Ninja as a subdomains though, in certain cases at least, along with the correct web hosting settings set.
 
@@ -376,8 +376,8 @@ It's possible to transmit uncompressed video frames and audio data from VDO.Ninj
 
 Using the \&audience option, you can have a consistent stream ID on your website that only you can publish to. Great for using VDO.Ninja as a small scale broadcast player on a personal website.
 
-{% content-ref url="../../advanced-settings/setup-parameters/and-audience.md" %}
-[and-audience.md](../../advanced-settings/setup-parameters/and-audience.md)
+{% content-ref url="../advanced-settings/setup-parameters/and-audience.md" %}
+[and-audience.md](../advanced-settings/setup-parameters/and-audience.md)
 {% endcontent-ref %}
 
 ### All to happy to support the IFRAME API

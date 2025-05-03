@@ -69,8 +69,8 @@ If embedding VDO.Ninja into a site as an IFrame, you'll not be allowed access to
 \
 See the documentation for more details
 
-{% content-ref url="../guides/iframe-api-documentation/" %}
-[iframe-api-documentation](../guides/iframe-api-documentation/)
+{% content-ref url="../guides/iframe-api-documentation.md" %}
+[iframe-api-documentation.md](../guides/iframe-api-documentation.md)
 {% endcontent-ref %}
 
 ### Try safe mode

@@ -53,8 +53,8 @@ Compression quality is set to 66% in all cases. This seems the best bang for buc
 
 This mode can work with audio, which uses the normal audio mode for transport.  Audio and these motion images stay roughly in sync.
 
-{% content-ref url="../../guides/iframe-api-documentation/" %}
-[iframe-api-documentation](../../guides/iframe-api-documentation/)
+{% content-ref url="../../guides/iframe-api-documentation.md" %}
+[iframe-api-documentation.md](../../guides/iframe-api-documentation.md)
 {% endcontent-ref %}
 
 {% embed url="https://www.youtube.com/watch?v=-7QsLChfdsE" %}
