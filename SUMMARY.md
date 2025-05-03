@@ -511,6 +511,7 @@
     * [\&api](general-settings/api.md)
       * [API reference](advanced-settings/api-and-midi-parameters/api/api-reference.md)
       * [API reference - alt version](advanced-settings/api-and-midi-parameters/api/api-reference-alt-version.md)
+      * [Client (node) event example](advanced-settings/api-and-midi-parameters/api/client-node-event-example.md)
     * [\&pie](general-settings/pie.md)
     * [\&midi](midi-settings/midi.md)
     * [\&midiin](midi-settings/midiin.md)
