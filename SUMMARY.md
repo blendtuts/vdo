@@ -434,6 +434,7 @@
     * [\&mutespeaker=0](https://docs.vdo.ninja/advanced-settings/audio-parameters/and-mutespeaker)
     * [\&showconnections](https://docs.vdo.ninja/advanced-settings/settings-parameters/and-showconnections)
     * [\&widget](https://docs.vdo.ninja/advanced-settings/settings-parameters/and-widget-alpha)
+    * [\&pausepreview](advanced-settings/director-parameters/and-pausepreview.md)
   * [Screen-share Parameters](advanced-settings/screen-share-parameters/README.md)
     * [\&screensharestereo](newly-added-parameters/and-screensharestereo.md)
     * [\&screenshare](https://docs.vdo.ninja/advanced-settings/source-parameters/screenshare)
