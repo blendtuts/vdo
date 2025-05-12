@@ -26,6 +26,9 @@ The installer script automates the complete TURN server setup process:
 sudo apt-get install
 sudo apt-get upgrade
 
+# Check your Firewall status, and if its running, please first configure; see help below
+ufw status
+
 # Download the installer
 wget https://raw.githubusercontent.com/steveseguin/vdo.ninja/develop/turnserver_install.sh.sample
 mv turnserver_install.sh.sample turnserver_install.sh
