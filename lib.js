@@ -590,25 +590,42 @@ function safariVersion() {
 	return ver;
 }
 
+function isIntelMac() {
+  // Check if it's a Mac but not Apple Silicon
+  if (macOS && navigator.userAgent.indexOf("Intel") >= 0) {
+    return true;
+  }
+  return false;
+}
+
 function judgePerformance(){
   try {
-	if (SafariVersion && SafariVersion >= 17 && (iOS || iPad)) { // iphone xr or newer
-		return 0;
-	}
+    if (SafariVersion && SafariVersion >= 17 && (iOS || iPad)) { // iphone xr or newer
+      return 0;
+    }
+    
     const cores = typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : 0;
-	
-	if (session.mobile && (cores>=4)){ // assume hardware encoded acceleration
-		return 0;
-	}
-	
-	if (!cores){
-		return 1;
-	} else if (cores < 4 ){
-		return 2;
-	} else if (cores>8){
-		return 0;
-	}
-	return 1
+    
+    if (isIntelMac()) {
+      if (cores < 6) { // yes. they are that bad.
+        return 2;
+      } else {
+        return 1;
+      }
+    }
+    
+    if (session.mobile && (cores>=4)){ // assume hardware encoded acceleration
+      return 0;
+    }
+    
+    if (!cores){
+      return 1;
+    } else if (cores < 4 ){
+      return 2;
+    } else if (cores>8){
+      return 0;
+    }
+    return 1
   } catch (e) {
     return 1; // 99% safe default
   }
@@ -3963,7 +3980,9 @@ function makeDraggableElement(element) {
 	if (session.disableMouseEvents) {
 		return;
 	} // this is here for a reason. :P
-
+	if (!element){
+		return;
+	}
 	element.initialX;
 	element.initialY;
 	element.currentX;
@@ -5052,12 +5071,118 @@ function setupIncomingVideoTracking(v, UUID) {
 	});
 
 	if (session.rpcs[UUID].stats.info && "remote" in session.rpcs[UUID].stats.info && session.rpcs[UUID].stats.info.remote) {
-		v.addEventListener("wheel", remoteFocusZoomRequest); //  just remote focus
+		v.addEventListener("wheel", remotePTZRequest);
+		// v.addEventListener("wheel", remoteFocusZoomRequest); //  just remote focus -- obsolete.
 	}
 	
-	if (session.zoomSlider && (session.director || (session.rpcs[UUID].stats.info && session.rpcs[UUID].stats.info.remote))){
+	if (session.ptzSlider && (session.director || (session.rpcs[UUID].stats.info && session.rpcs[UUID].stats.info.remote))) {
+		const ptzContainer = document.createElement('div');
+		ptzContainer.className = 'video-ptz-controls';
+		
+		// Zoom slider
+		const zoomSlider = document.createElement('div');
+		zoomSlider.className = 'video-zoom-slider';
+		
+		const zoomLabel = document.createElement('label');
+		zoomLabel.innerText = "Zoom";
+		
+		const zoomInput = document.createElement('input');
+		zoomInput.title = "Camera zoom control";
+		zoomInput.type = 'range';
+		zoomInput.min = '0';
+		zoomInput.max = '255';
+		zoomInput.value = '0';
+		
+		let zoomUpdating = false;
+		zoomInput.addEventListener('input', (e) => {
+			if (zoomUpdating) return;
+			const zoomValue = parseInt(e.target.value) / 255;
+			session.requestZoomChange(zoomValue, UUID, session.remote, true);
+		});
+		
+		// Pan slider
+		const panSlider = document.createElement('div');
+		panSlider.className = 'video-pan-slider';
+		
+		const panLabel = document.createElement('label');
+		panLabel.innerText = "Pan";
+		
+		const panInput = document.createElement('input');
+		panInput.title = "Camera pan control (left/right)";
+		panInput.type = 'range';
+		panInput.min = '-127';
+		panInput.max = '127';
+		panInput.value = '0';
+		
+		let panUpdating = false;
+		panInput.addEventListener('input', (e) => {
+			if (panUpdating) return;
+			const panValue = parseInt(e.target.value) / 127;
+			session.requestPanChange(panValue, UUID, session.remote);
+		});
+		
+		// Tilt slider
+		const tiltSlider = document.createElement('div');
+		tiltSlider.className = 'video-tilt-slider';
+		
+		const tiltLabel = document.createElement('label');
+		tiltLabel.innerText = "Tilt";
+		
+		const tiltInput = document.createElement('input');
+		tiltInput.title = "Camera tilt control (up/down)";
+		tiltInput.type = 'range';
+		tiltInput.min = '-127';
+		tiltInput.max = '127';
+		tiltInput.value = '0';
+		
+		let tiltUpdating = false;
+		tiltInput.addEventListener('input', (e) => {
+			if (tiltUpdating) return;
+			const tiltValue = parseInt(e.target.value) / 127;
+			session.requestTiltChange(tiltValue, UUID, session.remote);
+		});
+		
+		// Append elements to containers
+		zoomSlider.appendChild(zoomLabel);
+		zoomSlider.appendChild(zoomInput);
+		
+		panSlider.appendChild(panLabel);
+		panSlider.appendChild(panInput);
+		
+		tiltSlider.appendChild(tiltLabel);
+		tiltSlider.appendChild(tiltInput);
+		
+		ptzContainer.appendChild(zoomSlider);
+		ptzContainer.appendChild(panSlider);
+		ptzContainer.appendChild(tiltSlider);
+		
+		if (!v.container){
+			v.container = getById("videoContainer_" + UUID);
+		}
+		
+		v.container.appendChild(ptzContainer);
+		
+		// Store references for external updates
+		session.rpcs[UUID].zoomSlider = (value) => {
+			zoomUpdating = true;
+			zoomInput.value = Math.round(value * 255);
+			zoomUpdating = false;
+		};
+		
+		session.rpcs[UUID].panSlider = (value) => {
+			panUpdating = true;
+			panInput.value = Math.round(value * 127);
+			panUpdating = false;
+		};
+		
+		session.rpcs[UUID].tiltSlider = (value) => {
+			tiltUpdating = true;
+			tiltInput.value = Math.round(value * 127);
+			tiltUpdating = false;
+		};
+	} else if (session.zoomSlider && (session.director || (session.rpcs[UUID].stats.info && session.rpcs[UUID].stats.info.remote))){
 		const slider = document.createElement('div');
-		slider.className = 'video-zoom-slider';
+		slider.className = 'video-zoom-slider0';
 		
 		const input = document.createElement('input');
 		input.title = "Hint: The remote camera's browser may needs to be visible for zoom to work in certain browsers";
@@ -5184,7 +5309,91 @@ function setupIncomingVideoTracking(v, UUID) {
 	}
 }
 
-function remoteFocusZoomRequest(event) {
+session.requestPanChange = async function (pan, UUID, passwd = session.remote) {
+	log("request pan change: " + pan);
+	var msg = {};
+	msg.pan = pan;
+	msg.remote = passwd;
+	msg = await session.encodeRemote(msg);
+	if (session.sendRequest(msg, UUID)) {
+		log("pan success");
+	} else {
+		errorlog("failed to send pan change request");
+	}
+};
+
+session.requestTiltChange = async function (tilt, UUID, passwd = session.remote) {
+	log("request tilt change: " + tilt);
+	var msg = {};
+	msg.tilt = tilt;
+	msg.remote = passwd;
+	msg = await session.encodeRemote(msg);
+	if (session.sendRequest(msg, UUID)) {
+		log("tilt success");
+	} else {
+		errorlog("failed to send tilt change request");
+	}
+};
+
+session.requestZoomChange = async function (zoom, UUID, passwd = session.remote, absolute=false) {
+	log("request zoom change: " + zoom);
+	log(UUID);
+	var msg = {};
+	msg.zoom = zoom;
+	msg.abs = absolute;
+	msg.remote = passwd;
+	msg = await session.encodeRemote(msg);
+
+	if (session.sendRequest(msg, UUID)) {
+		log("zoom success");
+	} else {
+		errorlog("failed to send zoom change request");
+	}
+};
+
+function remotePTZRequest(event) {
+    event.preventDefault();
+    
+    var scale = event.deltaY > 0 ? -0.004 : 0.004;
+    
+    if (!event.altKey) {
+        scale *= 10;
+    }
+
+    if (event.ctrlKey || event.metaKey) {
+        if (event.shiftKey) {
+            // tilt
+            session.requestTiltChange(scale, event.currentTarget.dataset.UUID);
+        } else {
+            // focus
+            session.requestFocusChange(scale, event.currentTarget.dataset.UUID);
+        }
+    } else if (event.shiftKey) {
+        // pan
+        session.requestPanChange(scale, event.currentTarget.dataset.UUID);
+    } else {
+        // zoom
+        session.requestZoomChange(scale, event.currentTarget.dataset.UUID);
+    }
+}
+
+session.requestFocusChange = async function (focal, UUID, passwd = session.remote, absolute=false) {
+	log("request focus change: " + focal);
+
+	var msg = {};
+	msg.focus = focal;
+	msg.abs = absolute;
+	msg.remote = passwd;
+	msg = await session.encodeRemote(msg);
+
+	if (session.sendRequest(msg, UUID)) {
+		log("focus success");
+	} else {
+		errorlog("failed to send focus change request");
+	}
+};
+
+function remoteFocusZoomRequest(event) { // obsolete.
 	event.preventDefault();
 	
 	var scale = event.deltaY> 0 ? -0.004 : 0.004;
@@ -5463,7 +5672,6 @@ function switchModes(state = null) {
 
 var updateMixerTimer = null;
 var updateMixerActive = false;
-//var cleanupTimeout = null;
 function updateMixer(e = false) {
 	var controlBar = document.getElementById("subControlButtons");
 	if (controlBar && controlBar.dragElement && !controlBar.isDragging) {
@@ -6724,6 +6932,12 @@ function updateMixerRun(e = false) {
 		try {
 			customLayout = {};
 			let n = mediaPool.length;
+			
+			
+			if (session.slots && n < session.slots) {
+				n = session.slots; // If we have fewer videos than slots, still use the full slots count
+			}
+			
 			let rows = 1;
 			if (session.rows.length >= n) {
 				rows = parseInt(session.rows[n - 1]) || 1;
@@ -6760,7 +6974,13 @@ function updateMixerRun(e = false) {
 				}
 			} else {
 			
-				let cols = Math.ceil(n / rows) || 1;
+				let cols;
+				
+				if (session.slots) {
+					cols = session.slots / rows;
+				} else {
+					cols = Math.ceil(n / rows) || 1;
+				}
 
 				for (var i = 0; i < n; i++) {
 					let col = i % cols;
@@ -7040,7 +7260,8 @@ function updateMixerRun(e = false) {
 					mediaPool[j].slot = slotCounter;
 					mediaPool[j].slotBlank = true;
 				}
-				if (!("slot" in mediaPool[j]) || !parseInt(mediaPool[j].slot) || mediaPool[j].slot == "0" || !mediaPool[j].slot || session.slots < parseInt(mediaPool[j].slot)) {
+			    if (!("slot" in mediaPool[j]) || !parseInt(mediaPool[j].slot) || mediaPool[j].slot == "0" || !mediaPool[j].slot || session.slots < parseInt(mediaPool[j].slot)) {
+				//if ((!("slot" in mediaPool[j]) || !parseInt(mediaPool[j].slot) || mediaPool[j].slot == "0" || !mediaPool[j].slot || session.slots < parseInt(mediaPool[j].slot)) && !customLayout) {
 					mediaPool_invisible.push(mediaPool[j]);
 					mediaPool.splice(j, 1);
 				}
@@ -7133,7 +7354,7 @@ function updateMixerRun(e = false) {
 					}
 					//ele.alreadyAdded = true;
 					//ele.matched = true;
-				} else if (layout["#" + i].backgroundMedia) {
+				} else if (layout["#" + i].backgroundMedia || layout["#" + i].text || layout["#" + i].foregroundMedia) {
 					var ele = document.createElement("div");
 					ele.dataset.sid = "#" + i;
 				} else {
@@ -7223,6 +7444,7 @@ function updateMixerRun(e = false) {
 			var backgroundMedia = session.defaultMedia || false;
 			var foregroundMedia = session.defaultOverlayMedia || false;
 			var animated = session.animatedMoves || 0;
+			var textOverlay = false;
 			if (!borderOffset) {
 				borderColor = "#0000";
 			}
@@ -7273,6 +7495,44 @@ function updateMixerRun(e = false) {
 				if ("foregroundMedia" in layout[vid.dataset.sid]) {
 					foregroundMedia = layout[vid.dataset.sid].foregroundMedia || false;
 				}
+				
+				if (layout[vid.dataset.sid].text) {
+					
+					if (!vid.container || !vid.container.textOverlay) {
+						textOverlay = document.createElement("div");
+						textOverlay.className = "textOverlay";
+						//vid.container.appendChild(vid.container.textOverlay);
+					} else {
+						textOverlay = vid.container.textOverlay;
+					}
+					
+					textOverlay.innerText = layout[vid.dataset.sid].text;
+					textOverlay.style.color = layout[vid.dataset.sid].textColor || "#ffffff";
+					textOverlay.style.fontSize = layout[vid.dataset.sid].fontSize || "24px";
+					textOverlay.style.fontFamily = layout[vid.dataset.sid].fontFamily || "Arial, sans-serif";
+					textOverlay.style.position = "absolute";
+					textOverlay.style.width = "100%";
+					textOverlay.style.textAlign = "center";
+					textOverlay.style.zIndex = "10";
+					
+					// Position the text
+					const textPosition = layout[vid.dataset.sid].textPosition || "50%";
+					textOverlay.style.top = textPosition;
+					textOverlay.style.transform = "translateY(-50%)";
+					
+					// Add background if specified
+					if (layout[vid.dataset.sid].textBackground) {
+						textOverlay.style.backgroundColor = layout[vid.dataset.sid].textBackground;
+						textOverlay.style.padding = "10px";
+					} else {
+						textOverlay.style.backgroundColor = "transparent";
+						textOverlay.style.textShadow = "1px 1px 2px rgba(0,0,0,0.8)";
+					}
+				} else if (vid.container && vid.container.textOverlay) {
+					vid.container.textOverlay.remove();
+					delete vid.container.textOverlay;
+				}
+				
 				if (vid.container) {
 					if (!(vid.nodeName == "IFRAME" && vid.isConnected)) {
 						// moving an iframe will break it.
@@ -7327,7 +7587,7 @@ function updateMixerRun(e = false) {
 					if (layout[vid.dataset.sid].cover || layout[vid.dataset.sid].c) {
 						// this should be true/false
 						//vid.style.objectFit = "cover";
-						cover = true;
+						cover = layout[vid.dataset.sid].cover || layout[vid.dataset.sid].c;
 					} else {
 						//vid.style.objectFit = "contain"; // this should fall back to sessio.cover if no layout supplied
 						cover = false;
@@ -7383,11 +7643,39 @@ function updateMixerRun(e = false) {
 			} else {
 				maxHeight = container.style.height;
 			}
-
-			if (cover) {
+			if (cover === true) {
 				vid.style.maxWidth = maxWidth;
 				vid.style.maxHeight = maxHeight;
 				vid.style.objectFit = "cover";
+			} else if (cover == 2) {
+				// For session.cover == 2, determine whether to use cover or contain
+				// based on aspect ratio comparison
+				vid.style.maxWidth = maxWidth;
+				vid.style.maxHeight = maxHeight;
+				
+				const vw = vid.naturalWidth || vid.videoWidth || 0;
+				const vh = vid.naturalHeight || vid.videoHeight || 0;
+				
+				if (vw && vh) {
+					// Calculate aspect ratios
+					const videoAspect = vw / vh;
+					
+					// Use container dimensions for comparison
+					const containerWidth = parseFloat(maxWidth);
+					const containerHeight = parseFloat(maxHeight);
+					const containerAspect = containerWidth / containerHeight;
+					
+					// If video is wider than container proportionally (width being squished),
+					// use cover. Otherwise use contain.
+					if (videoAspect > containerAspect) {
+						vid.style.objectFit = "cover";
+					} else {
+						vid.style.objectFit = "contain";
+					}
+				} else {
+					// Default to contain if we can't determine dimensions
+					vid.style.objectFit = "contain";
+				}
 			} else {
 				vid.style.objectFit = "contain";
 				vid.style.maxWidth = maxWidth;
@@ -7467,6 +7755,10 @@ function updateMixerRun(e = false) {
 				} catch (e) {
 					errorlog(e);
 				}
+			}
+			
+			if (textOverlay && !container.textOverlay){
+				container.appendChild(textOverlay);
 			}
 
 			if ("rotated" in vid && vid.rotated !== false) {
@@ -8386,7 +8678,7 @@ function miniTranslate(ele, ident = false, direct = false) {
 	}
 }
 
-async function changeLg(lang, rtl=false) {
+async function changeLg(lang, rtl=false, save=false) {
 	log("changeLg: " + lang);
 	var retry = false;
 	if (lang == "auto") {
@@ -8424,6 +8716,13 @@ async function changeLg(lang, rtl=false) {
 						document.body.classList.add(rtl ? 'rtl' : 'ltr');
 						document.documentElement.style.setProperty('--rtl-or-ltr', rtl ? 'right' : 'left');
 						
+						if (save){
+							try {
+								localStorage.setItem("vdo_ninja_language", lang);
+							} catch (e) {
+								console.warn("Could not save language to localStorage", e);
+							}
+						}
 
 						if (translation.miscellaneous) {
 							Object.keys(translation.miscellaneous).forEach(key => {
@@ -15507,7 +15806,7 @@ function toggleMute(apply = false, event = false) {
 				track.enabled = false;
 			});
 		}
-		if (session.mobile && session.videoElement && session.videoElement.srcObject) {
+		if ((window.obsstudio || session.mobile) && session.videoElement && session.videoElement.srcObject) {
 			session.videoElement.srcObject.getAudioTracks().forEach(track => {
 				track.enabled = false;
 			});
@@ -17101,7 +17400,6 @@ function directEnable(ele, event, director = false) {
 	//		return;
 	//	}
 	//}
-
 	for (var uuid in session.pcs) {
 		if (session.pcs[uuid].scene === scene) {
 			session.sendMessage(msg, uuid);
@@ -20372,53 +20670,79 @@ session.publishIFrame = function (iframeURL) {
 	return container;
 } // publishWhepSrc */
 
+
+
 function disabledWebAudioPathway() {
+	log("Executing disabledWebAudioPathway.");
 	// if (session.disableWebAudio) { then run this instead; or if webaudio nodes fail.}
-	// if (iOS || iPad){return session.streamSrc;} // iOS devices can't remap video tracks, else KABOOM. Might as well do this for android also.
+	// if (iOS || iPad){return session.streamSrc;} // Original comment: iOS devices can't remap video tracks, else KABOOM. Might as well do this for android also.
+	// This iOS specific return was in comments, if it's critical, it should be uncommented.
+	// However, the logic below also attempts to handle stream cloning.
+
 	if (session.streamSrcClone) {
-		log("123a");
+		log("disabledWebAudioPathway: Cleaning up existing session.streamSrcClone");
 		session.streamSrcClone.getTracks().forEach(function (track) {
 			session.streamSrcClone.removeTrack(track);
 			track.stop();
 		});
+		session.streamSrcClone = null;
 	}
 
-	if (session.streamSrc && session.streamSrc.clone) {
-		log("123b");
-		var streamSrc = session.streamSrc.clone();
-		session.streamSrcClone = streamSrc;
-		return streamSrc;
-	} else {
-		log("123c");
-		var newStream = createMediaStream();
-		session.streamSrcClone = newStream;
+	var newStream = createMediaStream(); // This will be the returned stream
 
+	if (session.streamSrc && typeof session.streamSrc.clone === 'function' && !window.obsstudio) { // Prefer cloning if available and not obsstudio
+		log("disabledWebAudioPathway: Cloning session.streamSrc (non-obsstudio path)");
+		newStream = session.streamSrc.clone();
+	} else {
+		log("disabledWebAudioPathway: Creating new stream and adding tracks manually.");
 		if (session.streamSrc) {
 			session.streamSrc.getAudioTracks().forEach(function (track) {
-				// this seems to fix a bug with macbooks.
-				newStream.addTrack(track, session.streamSrc);
+				if (track.readyState === 'live') {
+					// For obsstudio, audio tracks can also be cloned for consistency, though less critical than video.
+					// For simplicity here, adding original, but could be `track.clone()`
+					newStream.addTrack(track);
+					log("disabledWebAudioPathway: Added audio track " + track.id);
+				}
 			});
 		}
+
+		let videoSourceForDisabledPath = null;
 		if (session.videoElement && session.videoElement.srcObject) {
-			session.videoElement.srcObject.getVideoTracks().forEach(function (track) {
-				// this seems to fix a bug with macbooks.
-				newStream.addTrack(track, session.videoElement.srcObject);
-			});
+			videoSourceForDisabledPath = session.videoElement.srcObject;
 		} else if (session.streamSrc) {
-			session.streamSrc.getVideoTracks().forEach(function (track) {
-				// this seems to fix a bug with macbooks.
-				newStream.addTrack(track, session.streamSrc);
+			videoSourceForDisabledPath = session.streamSrc;
+		}
+
+		if (videoSourceForDisabledPath) {
+			videoSourceForDisabledPath.getVideoTracks().forEach(function (track) {
+				if (track.readyState === 'live') {
+					if (window.obsstudio) {
+						log(`disabledWebAudioPathway (obsstudio): Cloning video track ${track.id}`);
+						try {
+							const clonedVideoTrack = track.clone();
+							newStream.addTrack(clonedVideoTrack);
+						} catch (e_clone_video) {
+							errorlog(`disabledWebAudioPathway (obsstudio): Failed to clone video track ${track.id}. Adding original. Error:`, e_clone_video);
+							newStream.addTrack(track); // Fallback
+						}
+					} else {
+						log(`disabledWebAudioPathway (non-obsstudio): Adding original video track ${track.id}`);
+						newStream.addTrack(track); // Original behavior
+					}
+				}
 			});
 		}
+	}
+	if (iOS || iPad || session.streamSrcClone) {
+		session.streamSrcClone = newStream; // Store the newly created/cloned stream
 	}
 	return newStream;
 }
 
 function outboundAudioPipeline(sourceStream = false) {
-	// this function isn't letting me change the audio source
-	
+
 	if (session.disableWebAudio) {
-		return disabledWebAudioPathway(); // safemode
+		return disabledWebAudioPathway(); // Safemode
 	}
 
 	if (!session.streamSrc && !sourceStream) {
@@ -20431,11 +20755,12 @@ function outboundAudioPipeline(sourceStream = false) {
 
 	if (iOS || iPad) {
 		if (session.streamSrcClone) {
-			var tracks = session.streamSrcClone.getAudioTracks();
-			if (tracks.length) {
+			var audioTracksForCleanup = session.streamSrcClone.getAudioTracks();
+			if (audioTracksForCleanup.length) {
 				for (var waid in session.webAudios) {
-					// TODO:  EXCLUDE CURRENT TRACK IF ALREADY EXISTS ... if (track.id === wa.id){..
-					session.webAudios[waid].stop();
+					if (session.webAudios[waid] && typeof session.webAudios[waid].stop === 'function') {
+						session.webAudios[waid].stop();
+					}
 					delete session.webAudios[waid];
 				}
 			}
@@ -20443,454 +20768,404 @@ function outboundAudioPipeline(sourceStream = false) {
 				session.streamSrcClone.removeTrack(track);
 				track.stop();
 			});
+			session.streamSrcClone = null;
 		}
 
-		if (session.streamSrc && session.streamSrc.clone) {
-			// modern
+		// Create iOS-compatible stream (always clone for iOS)
+		if (session.streamSrc && typeof session.streamSrc.clone === 'function') {
+			log("iOS: Cloning session.streamSrc");
 			streamSrc = session.streamSrc.clone();
 			session.streamSrcClone = streamSrc;
 		} else {
-			// backup.
-			streamSrc = createMediaStream();
-
-			if (session.streamSrc) {
-				session.streamSrc.getAudioTracks().forEach(function (track) {
-					// this seems to fix a bug with macbooks.
-					streamSrc.addTrack(track, session.streamSrc);
-				});
-			}
-			if (session.videoElement && session.videoElement.srcObject) {
-				session.videoElement.srcObject.getVideoTracks().forEach(function (track) {
-					// this seems to fix a bug with macbooks.
-					streamSrc.addTrack(track, session.videoElement.srcObject);
-				});
-			} else if (session.streamSrc) {
-				session.streamSrc.getVideoTracks().forEach(function (track) {
-					// this seems to fix a bug with macbooks.
-					streamSrc.addTrack(track, session.streamSrc);
-				});
-			}
-			session.streamSrcClone = streamSrc;
+			log("iOS: Creating new stream as backup");
+			session.streamSrcClone = createOptimizedStream(session.streamSrc, true);
+			streamSrc = session.streamSrcClone;
 		}
 	}
 
 	for (var waid in session.webAudios) {
-		// TODO:  EXCLUDE CURRENT TRACK IF ALREADY EXISTS ... if (track.id === wa.id){..
-		session.webAudios[waid].stop();
+		if (session.webAudios[waid] && typeof session.webAudios[waid].stop === 'function') {
+			session.webAudios[waid].stop();
+		}
 		delete session.webAudios[waid];
 	}
+	session.webAudios = session.webAudios || {};
 
 	try {
-		log("Web Audio");
-		var tracks = streamSrc.getAudioTracks();
-		if (tracks.length) {
-			var webAudio = {};
-			webAudio.micDelay = false;
-			webAudio.compressor = false;
-			webAudio.analyser = false;
-			webAudio.gainNode = false;
-			webAudio.splitter = false;
-			webAudio.subGainNodes = false;
+		log("Web Audio processing initiated.");
+		var audioTracks = streamSrc.getAudioTracks();
 
-			webAudio.lowEQ = false;
-			webAudio.midEQ = false;
-			webAudio.highEQ = false;
-			webAudio.lowcut1 = false;
-			webAudio.lowcut2 = false;
-			webAudio.lowcut3 = false;
-
-			webAudio.id = tracks[0].id; // first track is used.
-
-			if (session.audioCtxOutbound) {
-				// outbound implies 48000, since webrtc opus is 48000.  (pcm may be excepted)
-				// already Created
-			} else if (session.outboundSampleRate) {
+		if (audioTracks.length) {
+			var webAudio = initWebAudioNode(audioTracks[0].id);
+			
+			if (audioTracks.length > 1) {
 				try {
-					session.audioCtxOutbound = new AudioContext({ sampleRate: session.outboundSampleRate });
-				} catch (e) {
-					session.audioCtxOutbound = new AudioContext(); // legacy support
-					errorlog(e);
-				}
-			} else if (session.outboundSampleRate === false || Firefox || SafariVersion || session.mobile) {
-				// does not support resampling or likely doesn't need to worry, so will error
-				session.audioCtxOutbound = new AudioContext();
-			} else if (session.audioLatency !== false) {
-				// session.audioLatency could be useful for fixing clicking issues?
-				session.audioCtxOutbound = new AudioContext({
-					latencyHint: session.audioLatency / 1000.0, // needs to be in seconds, but VDON user input is via milliseconds
-					sampleRate: 48000 // not sure this is a great idea, but might as well add this here, versus later on since it is needed anyways.
-				});
-			} else {
-				try {
-					session.audioCtxOutbound = new AudioContext({ sampleRate: 48000 });
-				} catch (e) {
-					session.audioCtxOutbound = new AudioContext(); // legacy support
-					errorlog(e);
-				}
-			}
-
-			if (session.audioCtxOutbound && session.audioCtxOutbound.sampleRate && session.audioCtxOutbound.sampleRate > 192000) {
-				console.error("Warning: Your audio playback device has a very high sample rate set; lower it to 48000-Hz to avoid audio issues");
-			}
-
-			webAudio.audioContext = session.audioCtxOutbound;
-
-			webAudio.destination = session.audioCtxOutbound.createMediaStreamDestination();
-
-			if (tracks.length > 1) {
-				// tries to
-				try {
-					webAudio.mediaStreamSource = createMediaStream();
-					var maxChannelCount = 2;
-					if (session.stereo === false) {
-						maxChannelCount = 1;
-					}
-
-					webAudio.subGainNodes = {}; //
-
-					var merger = session.audioCtxOutbound.createChannelMerger(maxChannelCount);
-					for (var i = 0; i < tracks.length; i++) {
-						try {
-							var tempStream = createMediaStream();
-							tempStream.addTrack(tracks[i]);
-							trackStream = session.audioCtxOutbound.createMediaStreamSource(tempStream);
-
-							webAudio.subGainNodes[tracks[i].id] = session.audioCtxOutbound.createGain();
-							trackStream.connect(webAudio.subGainNodes[tracks[i].id]);
-
-							if (maxChannelCount == 2) {
-								var splitter = session.audioCtxOutbound.createChannelSplitter(2);
-								webAudio.subGainNodes[tracks[i].id].connect(splitter);
-								splitter.connect(merger, 0, 0);
-								try {
-									splitter.connect(merger, 1, 1);
-								} catch (e) {
-									errorlog(e);
-									try {
-										splitter.connect(merger, 0, 1); // hack.
-									} catch (e) {
-										errorlog(e);
-									}
-								}
-							} else {
-								webAudio.subGainNodes[tracks[i].id].connect(merger, 0, 0);
-							}
-						} catch (e) {
-							errorlog(e);
-							errorlog("Disabling web audio output node processing. Possibly an audio sample rate mismatch issue.");
-							return disabledWebAudioPathway(); // safemode
-						}
-					}
-
-					webAudio.gainNode = audioGainNode(merger, session.audioCtxOutbound);
-				} catch (e) {
-					errorlog(e);
+					setupMultiTrackAudio(audioTracks, webAudio);
+				} catch (e_multi) {
+					errorlog("Error in multi-track audio setup, falling back: ", e_multi);
 					try {
-						webAudio.mediaStreamSource = session.audioCtxOutbound.createMediaStreamSource(streamSrc);
-						webAudio.gainNode = audioGainNode(webAudio.mediaStreamSource, session.audioCtxOutbound);
-					} catch (e) {
-						errorlog(e);
-						errorlog("Disabling web audio output node processing. Possibly an audio sample rate mismatch issue.");
-						return disabledWebAudioPathway(); // safemode
+						webAudio.mediaStreamSource = webAudio.audioContext.createMediaStreamSource(streamSrc);
+						webAudio.gainNode = audioGainNode(webAudio.mediaStreamSource, webAudio.audioContext);
+					} catch (e_multi_fallback) {
+						errorlog("Fallback failed: ", e_multi_fallback);
+						return disabledWebAudioPathway();
 					}
 				}
 			} else {
 				try {
-					webAudio.mediaStreamSource = session.audioCtxOutbound.createMediaStreamSource(streamSrc); // clone to fix iOS issue
-					webAudio.gainNode = audioGainNode(webAudio.mediaStreamSource, session.audioCtxOutbound);
-				} catch (e) {
-					errorlog(e);
-					errorlog("Disabling web audio output node processing. Possibly an audio sample rate mismatch issue.");
-					return disabledWebAudioPathway(); // safemode
+					webAudio.mediaStreamSource = webAudio.audioContext.createMediaStreamSource(streamSrc); 
+					webAudio.gainNode = audioGainNode(webAudio.mediaStreamSource, webAudio.audioContext);
+				} catch (e_single) {
+					errorlog("Error creating single track setup: ", e_single);
+					return disabledWebAudioPathway();
 				}
 			}
 
-			var anonNode = webAudio.gainNode;
+			var anonNode = applyAudioProcessing(webAudio, streamSrc);
 
-			if (session.audioInputChannels == 1) {
-				let totalChannels = 0;
-				let activeChannels = 0;
+			const finalOutputStream = createMediaStream();
+			webAudio.destination.stream.getAudioTracks().forEach(audioTrack => {
+				finalOutputStream.addTrack(audioTrack);
+			});
 
-				tracks.forEach(track => {
-					if (track.getSettings && track.getSettings().channelCount) {
-						let trackChannels = track.getSettings().channelCount;
-						totalChannels += trackChannels;
-						if (track.enabled) {
-							activeChannels += trackChannels;
-						}
-					} else {
-						// Fallback if getSettings is not available
-						totalChannels += 2; // Assume stereo
-						if (track.enabled) {
-							activeChannels += 2;
-						}
-					}
-				});
+			addVideoTracksToStream(finalOutputStream, streamSrc);
 
-				totalChannels = Math.max(totalChannels, 1);
-				activeChannels = Math.max(activeChannels, 1);
-
-				webAudio.splitter = session.audioCtxOutbound.createChannelSplitter(totalChannels);
-				anonNode.connect(webAudio.splitter);
-				webAudio.merger = session.audioCtxOutbound.createChannelMerger(1);
-
-				// Create a gain node for volume adjustment
-				webAudio.downmixGain = session.audioCtxOutbound.createGain();
-
-				// Connect splitter outputs to merger through the gain node
-				for (let i = 0; i < totalChannels; i++) {
-					webAudio.splitter.connect(webAudio.downmixGain, i, 0);
-				}
-
-				webAudio.downmixGain.connect(webAudio.merger, 0, 0);
-
-				// Set gain to 1 / sqrt(activeChannels) to maintain perceived loudness
-				let gainValue = 1 / Math.sqrt(activeChannels);
-				webAudio.downmixGain.gain.setValueAtTime(gainValue, session.audioCtxOutbound.currentTime);
-
-				console.log(`Downmixing ${totalChannels} total channels (${activeChannels} active) to mono. Gain set to ${gainValue.toFixed(3)}`); // TODO: this is a temp log I guess.
-
-				anonNode = webAudio.merger;
-			}
-
-			if (session.lowcut) {
-				// https://webaudioapi.com/samples/frequency-response/ for a tool to help set values
-				webAudio.lowcut1 = session.audioCtxOutbound.createBiquadFilter();
-				webAudio.lowcut1.type = "highpass";
-				webAudio.lowcut1.frequency.value = session.lowcut;
-
-				webAudio.lowcut2 = session.audioCtxOutbound.createBiquadFilter();
-				webAudio.lowcut2.type = "highpass";
-				webAudio.lowcut2.frequency.value = session.lowcut;
-
-				webAudio.lowcut3 = session.audioCtxOutbound.createBiquadFilter();
-				webAudio.lowcut3.type = "highpass";
-				webAudio.lowcut3.frequency.value = session.lowcut;
-
-				anonNode.connect(webAudio.lowcut1);
-				webAudio.lowcut1.connect(webAudio.lowcut2);
-				webAudio.lowcut2.connect(webAudio.lowcut3);
-				anonNode = webAudio.lowcut3;
-			}
-
-			if (session.voicechanger) {
-				function makeDistortionCurve(amount = 10) {
-					var sampleRate = session.audioCtxOutbound.sampleRate || 48000;
-					var curve = new Float32Array(sampleRate);
-					var x;
-					for (let i = 0; i < sampleRate; ++i) {
-						x = (i * 2) / sampleRate - 1;
-						curve[i] = ((3 + amount) * x * 20 * (Math.PI / 180)) / (Math.PI + amount * Math.abs(x));
-					}
-					return curve;
-				}
-
-				let waveShaper = session.audioCtxOutbound.createWaveShaper();
-				waveShaper.curve = makeDistortionCurve(5);
-
-				var realCoeffs = new Float32Array([1, 0]);
-				var imagCoeffs = new Float32Array([0, 1]);
-
-				var numCoeffs = 20; // The more coefficients you use, the better the approximation
-				var realCoeffs = new Float32Array(numCoeffs);
-				var imagCoeffs = new Float32Array(numCoeffs);
-
-				realCoeffs[0] = 0.5;
-				for (var i = 1; i < numCoeffs; i++) {
-					// note i starts at 1
-					imagCoeffs[i] = (1 / (i * Math.PI)) * (1 - Math.random() / 2);
-				}
-
-				let oscillator = session.audioCtxOutbound.createOscillator();
-				oscillator.frequency.value = 10;
-
-				const wave = session.audioCtxOutbound.createPeriodicWave(realCoeffs, imagCoeffs);
-				oscillator.setPeriodicWave(wave);
-
-				let oscillatorGain = session.audioCtxOutbound.createGain();
-				oscillatorGain.gain.value = 0.005;
-				oscillator.connect(oscillatorGain);
-				oscillator.start(0);
-
-				let delay = session.audioCtxOutbound.createDelay();
-				delay.delayTime.value = 0.01;
-				oscillatorGain.connect(delay.delayTime);
-
-				let lowEQ = session.audioCtxOutbound.createBiquadFilter();
-				lowEQ.type = "peaking";
-				lowEQ.frequency.value = 200;
-				lowEQ.Q.value = 0.5;
-				lowEQ.gain.value = 6;
-
-				let mid = session.audioCtxOutbound.createBiquadFilter();
-				mid.type = "peaking";
-				mid.frequency.value = 500;
-				mid.Q.value = 0.5;
-				mid.gain.value = -10;
-				anonNode.connect(delay);
-				delay.connect(waveShaper);
-				waveShaper.connect(mid);
-				mid.connect(lowEQ);
-				anonNode = lowEQ;
-			}
-
-			if (session.equalizer) {
-				// https://webaudioapi.com/samples/frequency-response/ for a tool to help set values
-				webAudio.lowEQ = session.audioCtxOutbound.createBiquadFilter();
-				webAudio.lowEQ.type = "lowshelf";
-				webAudio.lowEQ.frequency.value = 100;
-				webAudio.lowEQ.gain.value = 0;
-
-				webAudio.midEQ = session.audioCtxOutbound.createBiquadFilter();
-				webAudio.midEQ.type = "peaking";
-				webAudio.midEQ.frequency.value = 1000;
-				webAudio.midEQ.Q.value = 0.5;
-				webAudio.midEQ.gain.value = 0;
-
-				webAudio.highEQ = session.audioCtxOutbound.createBiquadFilter();
-				webAudio.highEQ.type = "highshelf";
-				webAudio.highEQ.frequency.value = 10000;
-				webAudio.highEQ.gain.value = 0;
-
-				anonNode.connect(webAudio.lowEQ);
-				webAudio.lowEQ.connect(webAudio.midEQ);
-				webAudio.midEQ.connect(webAudio.highEQ);
-				anonNode = webAudio.highEQ;
-			}
-
-			if (session.compressor === 1) {
-				webAudio.compressor = audioCompressor(anonNode, session.audioCtxOutbound);
-				anonNode = webAudio.compressor;
-			} else if (session.compressor === 2) {
-				webAudio.compressor = audioLimiter(anonNode, session.audioCtxOutbound);
-				anonNode = webAudio.compressor;
-			}
-
-			if (session.micDelay !== false) {
-				webAudio.micDelay = micDelayNode(anonNode, session.audioCtxOutbound);
-				anonNode = webAudio.micDelay;
-			}
-
-			if (session.twilio && session.twilio.element && session.twilio.element.srcObject && session.twilio.element.srcObject.getAudioTracks().length) {
-				const source = session.audioCtxOutbound.createMediaStreamSource(session.twilio.element.srcObject);
-				source.connect(anonNode); // mix it in
-			}
-
-			if (session.noisegate !== false) {
-				webAudio.analyser = audioMeter(anonNode, session.audioCtxOutbound);
-				anonNode = webAudio.analyser;
-				webAudio.gatingNode = audioGatingNode(anonNode, session.audioCtxOutbound);
-				webAudio.gatingNode.connect(webAudio.destination);
-			} else {
-				webAudio.analyser = audioMeter(anonNode, session.audioCtxOutbound);
-				webAudio.analyser.connect(webAudio.destination);
-			}
-
-			webAudio.stop = function () {
-				webAudio.stop = function () {
-					errorlog("Trying to stop webaudio more than once");
-				}; // don't stop more than once.
-
-				try {
-					clearInterval(webAudio.analyser.interval);
-				} catch (e) {
-					errorlog(e);
-				}
-
-				for (var node in webAudio) {
-					if (!webAudio[node]) {
-						continue;
-					} else if (node == "stop") {
-						continue;
-					} else if (node == "id") {
-						continue;
-					} else if (node == "audioContext") {
-						continue;
-					} // skip. we want to reuse this
-					else if (node == "mediaStreamSource") {
-						continue;
-					} else if (node == "subGainNodes") {
-						for (var nn in webAudio[node]) {
-							if (webAudio[node][nn]) {
-								try {
-									webAudio[node][nn].disconnect();
-									webAudio[node][nn] = null;
-									log("disconnected node: " + node);
-								} catch (e) {
-									warnlog("node: " + node);
-									warnlog("nn: " + nn);
-									errorlog(e);
-								}
-							}
-						}
-						webAudio[node] = null;
-						continue;
-					}
-					try {
-						webAudio[node].disconnect();
-						webAudio[node] = null;
-						log("disconnected node: " + node);
-					} catch (e) {
-						warnlog("node: " + node);
-						warnlog(webAudio[node]);
-						errorlog(e);
-					}
-				}
-				webAudio = null;
-			};
-
-			webAudio.mediaStreamSource.onended = function () {
-				webAudio.stop();
-			};
-
-			session.webAudios[webAudio.id] = webAudio;
-			if (session.videoElement && session.videoElement.srcObject) {
-				session.videoElement.srcObject.getVideoTracks().forEach(function (track) {
-					//if (webAudio.id != track.id) { // presumed to be video, but OBS screws this up with its matching track ids for audio/video. doesn't matter tho
-					webAudio.destination.stream.addTrack(track, session.videoElement.srcObject);
-					//}
-				});
-			} else if (streamSrc) {
-				streamSrc.getVideoTracks().forEach(function (track) {
-					//if (webAudio.id != track.id) {
-					webAudio.destination.stream.addTrack(track, streamSrc);
-					//}
-				});
-			}
-
-			try {
-				if (session.audioCtxOutbound.state == "suspended") {
-					session.audioCtxOutbound.resume();
-				}
-			} catch (e) {
-				warnlog("session.audioCtx.resume(); failed");
-			}
-			return webAudio.destination.stream;
-		} else {
-			//if (session.mobile){return streamSrc;} // this avoids issues on mobile? <- caused problems
-			// there are no audio tracks, given this case. so, skip /* streamSrc.getAudioTracks().forEach(function(track) { // this seems to fix a bug with macbooks.
-			//	newStream.addTrack(track, streamSrc);
-			//}); */
-
-			if (session.videoElement && session.videoElement.srcObject) {
-				return session.videoElement.srcObject;
-			}
-
-			var newStream = createMediaStream();
-			if (streamSrc) {
-				streamSrc.getVideoTracks().forEach(function (track) {
-					// this seems to fix a bug with macbooks.
-					newStream.addTrack(track, streamSrc);
-				});
+			if (webAudio.audioContext && webAudio.audioContext.state === "suspended") {
+				webAudio.audioContext.resume().catch(e => errorlog("AudioContext resume failed:", e));
 			}
 			
-			return newStream;
+			return finalOutputStream;
+
+		} else { 
+			log("No audio tracks found. Handling video passthrough.");
+			// Return video-only stream
+			if (window.obsstudio) {
+				log("OBS (no audio): Creating stream with cloned video tracks");
+				const newStream = createMediaStream();
+				addVideoTracksToStream(newStream, streamSrc);
+				return newStream;
+			} else {
+				log("Non-OBS (no audio): Using direct video source");
+				if (session.videoElement && session.videoElement.srcObject) {
+					return session.videoElement.srcObject;
+				}
+				
+				const newStream = createMediaStream();
+				addVideoTracksToStream(newStream, streamSrc);
+				return newStream;
+			}
 		}
-	} catch (e) {
-		errorlog(e);
+	} catch (e_main) {
+		errorlog("Critical error in outboundAudioPipeline: ");
+		errorlog(e_main);
 		return streamSrc;
 	}
 }
+
+function createOptimizedStream(source, shouldClone = false) {
+	const newStream = createMediaStream();
+	
+	if (!source) return newStream;
+	
+	source.getAudioTracks().forEach(track => {
+		if (track.readyState === 'live') {
+			if (shouldClone) {
+				try {
+					newStream.addTrack(track.clone());
+				} catch (e) {
+					errorlog("Failed to clone audio track. Adding original. Error:", e);
+					newStream.addTrack(track);
+				}
+			} else {
+				newStream.addTrack(track);
+			}
+		}
+	});
+	
+	addVideoTracksToStream(newStream, source);
+	
+	return newStream;
+}
+
+function addVideoTracksToStream(targetStream, sourceStream) {
+	let videoSourceStream = sourceStream;
+	
+	// Find video source with fallback
+	if (session.videoElement && session.videoElement.srcObject && session.videoElement.srcObject.getVideoTracks().length > 0) {
+		videoSourceStream = session.videoElement.srcObject;
+	} else if (!videoSourceStream || videoSourceStream.getVideoTracks().length === 0) {
+		videoSourceStream = session.streamSrc;
+	}
+	
+	if (videoSourceStream) {
+		videoSourceStream.getVideoTracks().forEach(track => {
+			if (track.readyState === 'live') {
+				// Only clone for OBS Studio
+				if (window.obsstudio) {
+					log(`OBS: Cloning video track ${track.id}`);
+					try {
+						const clonedTrack = track.clone();
+						targetStream.addTrack(clonedTrack);
+					} catch (e_clone) {
+						errorlog(`OBS: Failed to clone track ${track.id}. Adding original. Error:`, e_clone);
+						targetStream.addTrack(track);
+					}
+				} else {
+					targetStream.addTrack(track);
+				}
+			}
+		});
+	}
+}
+
+function initWebAudioNode(trackId) {
+	var webAudio = {
+		id: trackId,
+		micDelay: false,
+		compressor: false,
+		analyser: false,
+		gainNode: false,
+		splitter: false,
+		subGainNodes: false,
+		lowEQ: false,
+		midEQ: false,
+		highEQ: false,
+		lowcut1: false,
+		lowcut2: false,
+		lowcut3: false,
+		waveShaper_vc: null,
+		oscillator_vc: null,
+		oscillatorGain_vc: null,
+		delay_vc: null,
+		lowEQ_vc: null,
+		mid_vc: null
+	};
+
+	// Create audio context if needed
+	if (session.audioCtxOutbound) {
+		// Already created
+	} else if (session.outboundSampleRate) {
+		try {
+			session.audioCtxOutbound = new AudioContext({ sampleRate: session.outboundSampleRate });
+		} catch (e) {
+			session.audioCtxOutbound = new AudioContext();
+			errorlog(e);
+		}
+	} else if (session.outboundSampleRate === false || Firefox || SafariVersion || session.mobile) {
+		session.audioCtxOutbound = new AudioContext();
+	} else if (session.audioLatency !== false) {
+		session.audioCtxOutbound = new AudioContext({
+			latencyHint: session.audioLatency / 1000.0,
+			sampleRate: 48000
+		});
+	} else {
+		try {
+			session.audioCtxOutbound = new AudioContext({ sampleRate: 48000 });
+		} catch (e) {
+			session.audioCtxOutbound = new AudioContext();
+			errorlog(e);
+		}
+	}
+
+	if (session.audioCtxOutbound && session.audioCtxOutbound.sampleRate > 192000) {
+		console.error("Warning: Your audio playback device has a very high sample rate set; lower it to 48000-Hz to avoid audio issues");
+	}
+
+	webAudio.audioContext = session.audioCtxOutbound;
+	webAudio.destination = session.audioCtxOutbound.createMediaStreamDestination();
+	
+	return webAudio;
+}
+
+// Helper function to handle multi-track audio setup
+function setupMultiTrackAudio(audioTracks, webAudio) {
+	var maxChannelCount = session.stereo === false ? 1 : 2;
+	webAudio.subGainNodes = {};
+	
+	var mergerNode = webAudio.audioContext.createChannelMerger(maxChannelCount);
+	
+	for (var i = 0; i < audioTracks.length; i++) {
+		try {
+			var tempIndividualTrackStream = createMediaStream();
+			tempIndividualTrackStream.addTrack(audioTracks[i]);
+			var trackAudioSourceNode = webAudio.audioContext.createMediaStreamSource(tempIndividualTrackStream);
+			
+			webAudio.subGainNodes[audioTracks[i].id] = webAudio.audioContext.createGain();
+			trackAudioSourceNode.connect(webAudio.subGainNodes[audioTracks[i].id]);
+			
+			if (maxChannelCount == 2) {
+				var individualSplitter = webAudio.audioContext.createChannelSplitter(2);
+				webAudio.subGainNodes[audioTracks[i].id].connect(individualSplitter);
+				individualSplitter.connect(mergerNode, 0, 0);
+				try {
+					individualSplitter.connect(mergerNode, 1, 1);
+				} catch (e_stereo) {
+					errorlog("Stereo connect ch1->input1 failed: ", e_stereo);
+					try {
+						individualSplitter.connect(mergerNode, 0, 1);
+					} catch (e_stereo_fallback) {
+						errorlog("Stereo connect ch0->input1 fallback failed: ", e_stereo_fallback);
+					}
+				}
+			} else {
+				webAudio.subGainNodes[audioTracks[i].id].connect(mergerNode, 0, 0);
+			}
+		} catch (e_track) {
+			errorlog("Error processing track: ", e_track);
+			throw e_track;
+		}
+	}
+	
+	webAudio.mediaStreamSource = mergerNode;
+	webAudio.gainNode = audioGainNode(webAudio.mediaStreamSource, webAudio.audioContext);
+}
+
+function applyAudioProcessing(webAudio, streamSrc) {
+	try {
+		var anonNode = webAudio.gainNode;
+		
+		// Channel downmixing
+		if (session.audioInputChannels == 1) {
+			anonNode = applyDownmixing(anonNode, webAudio);
+		}
+		
+		// Low cut filter
+		if (session.lowcut) {
+			anonNode = applyLowCut(anonNode, webAudio);
+		}
+		
+		// Voice changer
+		if (session.voicechanger) {
+			anonNode = applyVoiceChanger(anonNode, webAudio);
+		}
+		
+		// Equalizer
+		if (session.equalizer) {
+			anonNode = applyEqualizer(anonNode, webAudio);
+		}
+		
+		// Compressor/Limiter
+		if (session.compressor === 1) {
+			webAudio.compressor = audioCompressor(anonNode, webAudio.audioContext);
+			anonNode = webAudio.compressor;
+		} else if (session.compressor === 2) {
+			webAudio.compressor = audioLimiter(anonNode, webAudio.audioContext);
+			anonNode = webAudio.compressor;
+		}
+		
+		// Mic delay
+		if (session.micDelay !== false) {
+			webAudio.micDelay = micDelayNode(anonNode, webAudio.audioContext);
+			anonNode = webAudio.micDelay;
+		}
+		
+		// Twilio mix
+		if (session.twilio && session.twilio.element && session.twilio.element.srcObject && session.twilio.element.srcObject.getAudioTracks().length) {
+			const twilioSource = webAudio.audioContext.createMediaStreamSource(session.twilio.element.srcObject);
+			twilioSource.connect(anonNode);
+		}
+		
+		// Noise gate
+		if (session.noisegate !== false) {
+			webAudio.analyser = audioMeter(anonNode, webAudio.audioContext);
+			anonNode = webAudio.analyser;
+			webAudio.gatingNode = audioGatingNode(anonNode, webAudio.audioContext);
+			webAudio.gatingNode.connect(webAudio.destination);
+		} else {
+			webAudio.analyser = audioMeter(anonNode, webAudio.audioContext);
+			webAudio.analyser.connect(webAudio.destination);
+		}
+		
+		webAudio.stop = createStopFunction(webAudio);
+		
+		if (streamSrc && webAudio.mediaStreamSource) {
+			const tracks = streamSrc.getTracks();
+			if (tracks.length) {
+			  tracks.forEach(track => {
+				track.addEventListener('ended', () => {
+				  log("Track ended, stopping webAudio");
+				  webAudio.stop();
+				});
+			  });
+			} else if (webAudio.mediaStreamSource.onended !== undefined) {
+			  // Fallback for older browsers
+			  webAudio.mediaStreamSource.onended = () => {
+				log("MediaStreamSource ended, stopping webAudio");
+				webAudio.stop();
+			  };
+			}
+		}
+		
+		session.webAudios[webAudio.id] = webAudio;
+	} catch(e){
+		console.error(e);
+		return webAudio;
+	}
+	
+	return anonNode;
+}
+function createStopFunction(webAudio) {
+  return function() {
+    // Prevent multiple calls
+    if (webAudio.stopped) {
+      errorlog("Trying to stop webaudio more than once");
+      return;
+    }
+    webAudio.stopped = true;
+    
+    // Clear analyzer interval if it exists
+    try {
+      if (webAudio.analyser && webAudio.analyser.interval) {
+        clearInterval(webAudio.analyser.interval);
+      }
+    } catch (e) {
+      errorlog("Error clearing analyser interval:", e);
+    }
+    
+    // Special handling for subGainNodes (collection of nodes)
+    if (webAudio.subGainNodes) {
+      for (var id in webAudio.subGainNodes) {
+        try {
+          if (webAudio.subGainNodes[id]) {
+            webAudio.subGainNodes[id].disconnect();
+            webAudio.subGainNodes[id] = null;
+          }
+        } catch (e) {
+          errorlog("Error disconnecting subGainNode " + id + ":", e);
+        }
+      }
+      webAudio.subGainNodes = null;
+    }
+    
+    // List of properties to skip disconnecting
+    const skipProperties = ["stop", "id", "audioContext", "mediaStreamSource", "subGainNodes", "stopped"];
+    
+    // Disconnect all other nodes
+    for (var node in webAudio) {
+      if (!webAudio[node] || skipProperties.includes(node)) {
+        continue;
+      }
+      
+      try {
+        // Only disconnect if it has a disconnect method (is an audio node)
+        if (typeof webAudio[node].disconnect === 'function') {
+          webAudio[node].disconnect();
+          log("Disconnected node: " + node);
+        }
+        webAudio[node] = null;
+      } catch (e) {
+        errorlog("Error disconnecting node " + node + ":", e);
+      }
+    }
+    
+    // Remove from session tracking
+    if (session.webAudios && webAudio.id && session.webAudios[webAudio.id]) {
+      delete session.webAudios[webAudio.id];
+    }
+  };
+}
+
+
 
 function changeLowCut(freq, deviceid = null) {
 	log("LOW EQ");
@@ -21260,8 +21535,41 @@ function activeSpeaker(border = false) {
 	var someoneElseIfSpeaking = false;
 	var anyoneIsSpeaking = 0;
 	var defaultSpeaker = false;
-
+	var anyVideoAvailable = false; // Track if any video streams are available at all
+	var changed = false;
+	
+	// First pass: check if any video is available
 	for (var UUID in session.rpcs) {
+		if (session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && 
+			session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
+			anyVideoAvailable = true;
+			break;
+		}
+	}
+	
+	for (var UUID in session.rpcs) {
+		
+		if (session.scene){
+			let pass = checkMuteState(UUID);
+			// If no one is visible and this person has video, show them immediately
+			if (pass && !anyoneIsSpeaking && !defaultSpeaker && anyVideoAvailable === false && 
+				session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && 
+				session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
+				session.rpcs[UUID].defaultSpeaker = true;
+				defaultSpeaker = true;
+				anyVideoAvailable = true;
+				changed = true;
+				continue;
+			} else if (pass){
+				session.rpcs[UUID].activelySpeaking = false;
+				if (session.rpcs[UUID].defaultSpeaker && session.rpcs[UUID].defaultSpeaker !== true) {
+					clearTimeout(session.rpcs[UUID].defaultSpeaker);
+				}
+				session.rpcs[UUID].defaultSpeaker = false;
+				continue;
+			}
+		}
+		
 		if (session.activeSpeaker > 2 && !(session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted)) {
 			session.rpcs[UUID].activelySpeaking = false; // we're not showing audio-only sources in this mode.
 			if (session.rpcs[UUID].defaultSpeaker && session.rpcs[UUID].defaultSpeaker !== true) {
@@ -21317,7 +21625,7 @@ function activeSpeaker(border = false) {
 
 	var loudest = null;
 	var loudestActive = null;
-	var changed = false;
+	
 	if (session.activeSpeaker === 1 || session.activeSpeaker === 3) {
 		// will only show one speaker at a time; the loudest or last-loud speaker
 		if (!anyoneIsSpeaking) {
@@ -21333,6 +21641,60 @@ function activeSpeaker(border = false) {
 				session.rpcs[lastActiveSpeaker].defaultSpeaker = true;
 			} else if (session.scene === false || (session.nopreview === false && session.minipreview !== 1)) {
 				// we don't need to care.
+			} else if (anyVideoAvailable === false) {
+				// Immediately select the first available video source if no one is currently visible
+				for (var UUID in session.rpcs) {
+					if (session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && 
+						session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
+						
+						if (session.rpcs[UUID].defaultSpeaker !== false) {
+							clearTimeout(session.rpcs[UUID].defaultSpeaker);
+						} else {
+							changed = true;
+							log(UUID + " is speaker now (no lull)");
+						}
+						session.rpcs[UUID].defaultSpeaker = true;
+						break;
+					}
+				}
+				// Fall through to original logic if needed
+				if (!changed) {
+					for (var UUID in session.rpcs) {
+						if (session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
+							if (session.rpcs[UUID].defaultSpeaker !== false) {
+								clearTimeout(session.rpcs[UUID].defaultSpeaker);
+							} else {
+								changed = true;
+								log(UUID + " is speaker now");
+							}
+							session.rpcs[UUID].defaultSpeaker = true;
+							break;
+						}
+					}
+					if (!changed && session.activeSpeaker <= 2) {
+						// switch to streams that have no video track
+						for (var UUID in session.rpcs) {
+							if (session.rpcs[UUID].label) {
+								if (session.rpcs[UUID].defaultSpeaker !== false) {
+									clearTimeout(session.rpcs[UUID].defaultSpeaker);
+								} else {
+									changed = true;
+									log(UUID + " is speaker now");
+								}
+								session.rpcs[UUID].defaultSpeaker = true;
+								break;
+							} else if (!changed) {
+								if (session.rpcs[UUID].defaultSpeaker !== false) {
+									clearTimeout(session.rpcs[UUID].defaultSpeaker);
+								} else {
+									changed = true;
+									log(UUID + " is speaker now");
+								}
+								session.rpcs[UUID].defaultSpeaker = true;
+							}
+						}
+					}
+				}
 			} else {
 				for (var UUID in session.rpcs) {
 					if (session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
@@ -21343,7 +21705,6 @@ function activeSpeaker(border = false) {
 							log(UUID + " is speaker now");
 						}
 						session.rpcs[UUID].defaultSpeaker = true;
-
 						break;
 					}
 				}
@@ -21358,7 +21719,6 @@ function activeSpeaker(border = false) {
 								log(UUID + " is speaker now");
 							}
 							session.rpcs[UUID].defaultSpeaker = true;
-
 							break;
 						} else if (!changed) {
 							if (session.rpcs[UUID].defaultSpeaker !== false) {
@@ -21378,18 +21738,12 @@ function activeSpeaker(border = false) {
 					// never could have been loudest, since no loudness value.
 					continue;
 				}
-				/* if (!loudest){
-					loudest = UUID;
-				} else if (session.rpcs[UUID].stats._Audio_Loudness_average > session.rpcs[loudest].stats._Audio_Loudness_average){
-					loudest = UUID;
-				} */
 
 				if (session.rpcs[UUID].activelySpeaking) {
 					if (!loudestActive) {
 						loudestActive = UUID;
 					} else if (session.rpcs[UUID].stats._Audio_Loudness_average > session.rpcs[loudestActive].stats._Audio_Loudness_average) {
 						if (session.rpcs[loudestActive].defaultSpeaker === true) {
-							//session.rpcs[loudestActive].defaultSpeaker=false;
 							if (!session.activeSpeakerTimeout) {
 								session.rpcs[loudestActive].defaultSpeaker = false;
 								changed = true;
@@ -21407,7 +21761,6 @@ function activeSpeaker(border = false) {
 						}
 						loudestActive = UUID;
 					} else if (session.rpcs[UUID].defaultSpeaker === true) {
-						//session.rpcs[UUID].defaultSpeaker=false;
 						if (!session.activeSpeakerTimeout) {
 							session.rpcs[UUID].defaultSpeaker = false;
 							changed = true;
@@ -21477,6 +21830,56 @@ function activeSpeaker(border = false) {
 				session.rpcs[lastActiveSpeaker].defaultSpeaker = true;
 			} else if (session.scene === false || (session.nopreview === false && session.minipreview !== 1)) {
 				// we don't need to care.
+			} else if (anyVideoAvailable === false) {
+				// Immediately select the first available video source if no one is currently visible
+				for (var UUID in session.rpcs) {
+					if (session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && 
+						session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
+						
+						if (session.rpcs[UUID].defaultSpeaker !== false) {
+							clearTimeout(session.rpcs[UUID].defaultSpeaker);
+						} else {
+							changed = true;
+							log(UUID + " is speaker now (no lull)");
+						}
+						session.rpcs[UUID].defaultSpeaker = true;
+						break;
+					}
+				}
+				// Fall through to original logic if needed
+				if (!changed) {
+					for (var UUID in session.rpcs) {
+						if (session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
+							if (session.rpcs[UUID].defaultSpeaker !== false) {
+								clearTimeout(session.rpcs[UUID].defaultSpeaker);
+							} else {
+								changed = true;
+							}
+							session.rpcs[UUID].defaultSpeaker = true;
+							break;
+						}
+					}
+					if (!changed && session.activeSpeaker <= 2) {
+						for (var UUID in session.rpcs) {
+							if (session.rpcs[UUID].label) {
+								if (session.rpcs[UUID].defaultSpeaker !== false) {
+									clearTimeout(session.rpcs[UUID].defaultSpeaker);
+								} else {
+									changed = true;
+								}
+								session.rpcs[UUID].defaultSpeaker = true;
+								break;
+							} else if (!changed) {
+								if (session.rpcs[UUID].defaultSpeaker !== false) {
+									clearTimeout(session.rpcs[UUID].defaultSpeaker);
+								} else {
+									changed = true;
+								}
+								session.rpcs[UUID].defaultSpeaker = true;
+							}
+						}
+					}
+				}
 			} else {
 				for (var UUID in session.rpcs) {
 					if (session.rpcs[UUID].videoElement && session.rpcs[UUID].videoElement.srcObject && session.rpcs[UUID].videoElement.srcObject.getVideoTracks().length && !session.rpcs[UUID].videoMuted) {
@@ -22902,30 +23305,7 @@ function combinedLayoutSimple(layout) {
     return combined;
 }
 
-function createSlotUpdate(UUID = false) {
-    try {
-        // Create a clean copy of currentSlots with empty slots removed
-        const cleanSlots = {};
-        Object.entries(session.currentSlots).forEach(([slot, streamID]) => {
-            if (streamID) {
-                cleanSlots[slot] = streamID;
-            }
-        });
-        
-        // Send to appropriate recipients
-        if (!UUID) {
-            for (var uid in session.pcs) {
-                if (session.pcs[uid].layout) {
-                    session.sendMessage({ slotsUpdate: cleanSlots }, uid);
-                }
-            }
-        } else {
-            session.sendMessage({ slotsUpdate: cleanSlots }, UUID);
-        }
-    } catch (e) {
-        errorlog(e);
-    }
-}
+
 
 async function createDirectorOnlyBox() {
 	var soloLink = soloLinkGenerator(session.streamID);
@@ -23147,11 +23527,7 @@ async function createDirectorOnlyBox() {
 		labelID.innerText = session.label;
 	}
 	pokeIframeAPI("control-box", true, true);
-	if (session.slotmode) {
-		pokeIframeAPI("slot-updated", biggestSlot, null, session.streamID); // need to support self-director
-		session.pastSlots[session.streamID] = biggestSlot;
-		createSlotUpdate();
-	}
+	
 }
 
 
@@ -23341,11 +23717,7 @@ async function createDirectorScreenshareOnlyBox() {
 	});
 
 	pokeIframeAPI("control-box", true, true);
-	if (session.slotmode) {
-		pokeIframeAPI("slot-updated", biggestSlot, null, screenStreamID); // need to support self-director
-		session.pastSlots[screenStreamID] = biggestSlot;
-		createSlotUpdate();
-	}
+	
 }
 
 function shiftPC(ele, shift, director = false) {
@@ -23541,7 +23913,7 @@ function dropSlot(event) {
     }
     
     // Update past slots for future reference
-    session.pastSlots[SID] = targetSlot;
+    session.pastSlots[SID] = targetSlot;  // we don't need to run syncSlotState(), as this handles it
     session.pastSlots[targetSID] = origSlot;
     
     // Tell any iframes about the swap
@@ -23549,7 +23921,7 @@ function dropSlot(event) {
     pokeIframeAPI("slot-updated", origSlot, null, targetSID);
     
     // Notify all peers of the update
-    createSlotUpdate();
+	broadcastSlotUpdate();
     
     return false;
 }
@@ -23721,7 +24093,7 @@ function setSlot(ele, slot) {
             }
             
             // Always update all peers
-            createSlotUpdate();
+			broadcastSlotUpdate();
             
         } catch (e) {
             errorlog(e);
@@ -23815,11 +24187,32 @@ function syncSlotState(streamID, slotValue=false, updateUI=true) {
             }
         }
     }
+	
+	pokeIframeAPI("slot-updated", slotValue, null, streamID); // need to support self-director
+	session.pastSlots[streamID] = slotValue || 0;
     
-    createSlotUpdate();
+	clearTimeout(session.slotBroadcastThrottle);
+    session.slotBroadcastThrottle = setTimeout(function(){broadcastSlotUpdate();},10);
     return true;
 }
-
+function broadcastSlotUpdate(UUID = false) {
+    try {
+		if (!session.slotmode || !session.director){
+			return;
+		}
+        if (!UUID) {
+			if (session.slotBroadcastThrottle){
+				clearTimeout(session.slotBroadcastThrottle);
+				session.slotBroadcastThrottle = null;
+			}
+            session.sendMessage({ slotsUpdate: session.currentSlots });
+        } else {
+            session.sendMessage({ slotsUpdate: session.currentSlots }, UUID);
+        }
+    } catch (e) {
+        errorlog(e);
+    }
+}
 function updateSlotUI() {
     // Update all slot UI elements based on the current state in session.currentSlots
     Object.entries(session.currentSlots).forEach(([slot, streamID]) => {
@@ -24188,12 +24581,6 @@ function createControlBox(UUID, soloLink, streamID, slot_init = false) {
 	syncOtherState(streamID);
 
 	pokeIframeAPI("control-box", true, UUID);
-	if (session.slotmode) {
-		pokeIframeAPI("slot-updated", biggestSlot, UUID); // need to support self-director
-		session.pastSlots[streamID] = biggestSlot; 
-
-		createSlotUpdate();
-	}
 }
 
 
@@ -27165,6 +27552,53 @@ function reconnectDevices(event) {
 	}, 1000);
 }
 
+function handleAudioTrackEnded(event) {
+    errorlog("Audio track ended unexpectedly");
+	
+    // If there's already a reconnection attempt in progress, don't start another one
+    if (session.audioReconnectInProgress) {
+        return;
+    }
+	
+	let modalID = null;
+    if (!session.cleanOutput) {
+        warnUser("Your microphone disconnected. Attempting to reconnect...", 3200);
+    }
+    
+    session.audioReconnectInProgress = true;
+    
+    // Wait a brief moment to ensure the device has time to be recognized again if it was unplugged/replugged
+    setTimeout(function() {
+        activatedPreview = false;
+        grabAudio("#audioSource3", null, false);
+        
+        // Check if reconnection was successful after a delay
+        setTimeout(function() {
+            session.audioReconnectInProgress = false;
+			
+            closeModal(false, modalID);
+				
+            // Check if there are any active audio tracks after reconnection attempt
+            const hasAudioTracks = session.streamSrc && 
+                                   session.streamSrc.getAudioTracks && 
+                                   session.streamSrc.getAudioTracks().length > 0;
+            
+            if (!hasAudioTracks) {
+                // Reconnection failed, open settings menu
+                if (!session.cleanOutput) {
+                    warnUser("Failed to reconnect your microphone. Please select a different device.", 5000);
+                }
+                
+                // Open the settings menu
+                if (typeof toggleSettings === 'function') {
+                    toggleSettings(true); // force show the settings
+                }
+            }
+        }, 2000);
+    }, 1000);
+}
+
+
 var vingesterFixed = false;
 function resetupAudioOut(ele = false, forceReset = false) {
 	// this re-sets ALL output devices / sources
@@ -27602,14 +28036,22 @@ async function toggleScreenShare(reload = false) {
 		updateMixer();
 	}
 }
+
 var ipcRenderer = false;
 var ElectronDesktopCapture = false;
+var windowAudioCapture = null;
+var capturedAudioStream = null;
+
 if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 	// this enables Screen Capture in Electron
 	try {
 		if (!ipcRenderer) {
 			ipcRenderer = require("electron").ipcRenderer;
 		}
+		
+		// Initialize WindowAudioStream helper
+		windowAudioCapture = new WindowAudioStream();
+		
 		window.navigator.mediaDevices.getDisplayMedia = (constraints = false) => {
 			return new Promise(async (resolve, reject) => {
 				try {
@@ -27655,11 +28097,6 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 									new_constraints.video.mandatory.maxFrameRate = constraints.video.frameRate.ideal;
 								}
 							} catch (e) {}
-							///
-							
-							//if (Firefox){ // this is electron
-							//	new_constraints = toFirefoxConstraint(new_constraints);
-							//}
 							
 							warnlog("navigator.mediaDevices.getUserMedia starting...");
 							const stream = await window.navigator.mediaDevices.getUserMedia(new_constraints);
@@ -27718,11 +28155,6 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 									new_constraints.video.mandatory.maxFrameRate = constraints.video.frameRate.ideal;
 								}
 							} catch (e) {}
-							///
-							
-							//if (Firefox){
-							//	new_constraints = toFirefoxConstraint(new_constraints);
-							//}
 							
 							warnlog("navigator.mediaDevices.getUserMedia starting...");
 							const stream = await window.navigator.mediaDevices.getUserMedia(new_constraints);
@@ -27764,18 +28196,27 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 								}
 							} catch (e) {}
 							warnlog(new_constraints);
-							///
-							
-							//if (Firefox){
-							//	new_constraints = toFirefoxConstraint(new_constraints);
-							//}
 							
 							warnlog("navigator.mediaDevices.getUserMedia starting...");
 							const stream = await window.navigator.mediaDevices.getUserMedia(new_constraints);
 							resolve(stream);
 						}
 					} else {
+						// Get both sources and window audio
 						const sources = await ipcRenderer.sendSync("getSources", { types: ["screen", "window"] });
+						
+						// Get window list with audio capabilities
+						const windowsWithAudio = await window.electronApi.getWindowList();
+						
+						// Create a map of window IDs to process IDs for matching
+						const windowAudioMap = {};
+						windowsWithAudio.forEach(win => {
+							windowAudioMap[win.id] = {
+								processId: win.processId,
+								title: win.title
+							};
+						});
+						
 						const selectionElem = document.createElement("div");
 						selectionElem.classList = "desktop-capturer-selection";
 
@@ -27805,20 +28246,41 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 						  <ul class="desktop-capturer-selection__list">
 							${sources
 								.map(
-									({ id, name, thumbnail, display_id, appIcon }) => `
+									({ id, name, thumbnail, display_id, appIcon }) => {
+										// Find if this window has audio capability
+										const hasAudioCapability = Object.values(windowAudioMap).some(win => 
+											win.title.includes(name) || name.includes(win.title)
+										);
+										
+										return `
 							  <li class="desktop-capturer-selection__item">
-								<button class="desktop-capturer-click desktop-capturer-selection__btn" data-id="${id}" title="${name}">
+								<button class="desktop-capturer-click desktop-capturer-selection__btn" data-id="${id}" data-name="${name}" title="${name}">
 								  <img class="desktop-capturer-selection__thumbnail" src="${thumbnail.toDataURL()}" />
 								  <span class="desktop-capturer-selection__name">${name}</span>
+								  ${hasAudioCapability ? 
+										`<div class="desktop-capturer-selection__audio-option">
+											<label title="Capture window audio">
+												<input type="checkbox" class="capture-window-audio" data-source-name="${name}">
+												<span><i class="las la-volume-up"></i> Capture audio</span>
+											</label>
+										</div>` : ''}
 								</button>
 							  </li>
-							`
-								)
+							`})
 								.join("")}
-							<div id="alsoCaptureAudioParent1" style="text-align: center;margin: auto 5px;font-size: 120%;"><i class="las la-music" style="font-size:40px;"></i><br />Include Desktop Audio<br /><input id="alsoCaptureAudio" style="width:20px;height:20px;margin-top: 10px;" type="checkbox" checked></div>
-							<div id="alsoCaptureAudioParent2" style="text-align: center;margin: auto 5px;font-size: 120%;display:none;"><i class="las la-music" style="font-size:40px;"></i><br />Audio capture not <br />supported on macOS</div>
-							<button id="captureDesktopAudio" class="desktop-capturer-click" style="margin: 10px;"><i class="las la-music" style="font-size:40px;"></i><br />Capture ONLY<br />Desktop Audio</button>
-							<button id="cancelscreenshare" style="margin: 10px; background-color: #F88; width: 100px;"><i class="las la-window-close" style="font-size:40px;"></i><br />Cancel</button>
+							<div id="alsoCaptureAudioParent1" style="text-align: center;margin: auto 5px;font-size: 120%;">
+								<i class="las la-music" style="font-size:40px;"></i><br />Include System Audio<br />
+								<input id="alsoCaptureAudio" style="width:20px;height:20px;margin-top: 10px;" type="checkbox" checked>
+							</div>
+							<div id="alsoCaptureAudioParent2" style="text-align: center;margin: auto 5px;font-size: 120%;display:none;">
+								<i class="las la-music" style="font-size:40px;"></i><br />Audio capture not <br />supported on macOS
+							</div>
+							<button id="captureDesktopAudio" class="desktop-capturer-click" style="margin: 10px;">
+								<i class="las la-music" style="font-size:40px;"></i><br />Capture ONLY<br />Desktop Audio
+							</button>
+							<button id="cancelscreenshare" style="margin: 10px; background-color: #F88; width: 100px;">
+								<i class="las la-window-close" style="font-size:40px;"></i><br />Cancel
+							</button>
 						  </ul>
 						</div>
 					  `;
@@ -27836,6 +28298,7 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 							selectionElem.remove();
 							reject(null);
 						});
+						
 						document.querySelectorAll(".desktop-capturer-click").forEach(button => {
 							button.addEventListener("click", async () => {
 								try {
@@ -27855,10 +28318,6 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 										new_constraints.video.mandatory.maxFrameRate = 1;
 										warnlog(new_constraints);
 										
-										//if (Firefox){
-										//	new_constraints = toFirefoxConstraint(new_constraints);
-										//}
-										
 										warnlog("navigator.mediaDevices.getUserMedia starting...");
 										const stream = await window.navigator.mediaDevices.getUserMedia(new_constraints);
 										if (stream.getVideoTracks().length) {
@@ -27870,6 +28329,7 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 										selectionElem.remove();
 									} else {
 										var audioStream = false;
+										// Check if we should capture system audio
 										if (getById("alsoCaptureAudio").checked) {
 											var new_constraints = {
 												audio: {
@@ -27886,10 +28346,6 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 											new_constraints.video.mandatory.maxFrameRate = 1;
 											warnlog(new_constraints);
 											
-											//if (Firefox){
-											//	new_constraints = toFirefoxConstraint(new_constraints);
-											//}
-											
 											warnlog("navigator.mediaDevices.getUserMedia starting...");
 											audioStream = await window.navigator.mediaDevices.getUserMedia(new_constraints);
 											if (audioStream.getVideoTracks().length) {
@@ -27899,11 +28355,47 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 											}
 										}
 
+										// Get the source ID for the selected window
 										const id = button.getAttribute("data-id");
 										const source = sources.find(source => source.id === id);
 										if (!source) {
 											throw new Error(`Source with id ${id} does not exist`);
 										}
+										
+										// Check if we should capture window-specific audio
+										const sourceName = button.getAttribute("data-name");
+										const audioCheckbox = button.querySelector('.capture-window-audio');
+										let windowAudioId = null;
+										
+										// If window-specific audio is requested
+										if (audioCheckbox && audioCheckbox.checked) {
+											// Find the window by name
+											for (const win of windowsWithAudio) {
+												if (win.title.includes(sourceName) || sourceName.includes(win.title)) {
+													windowAudioId = win.id;
+													break;
+												}
+											}
+											
+											// Start capturing audio for the specific window
+											if (windowAudioId) {
+												try {
+													// Stop any previous capture
+													if (capturedAudioStream) {
+														await windowAudioCapture.stop();
+														capturedAudioStream = null;
+													}
+													
+													// Start the capture
+													capturedAudioStream = await windowAudioCapture.start(windowAudioId);
+													console.log("Window audio capture started for: " + sourceName);
+												} catch (e) {
+													console.error("Failed to capture window audio:", e);
+												}
+											}
+										}
+										
+										// Setup normal screen capture
 										var new_constraints = {
 											audio: false,
 											video: {
@@ -27930,14 +28422,17 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 										} catch (e) {}
 										warnlog(new_constraints);
 										
-										//if (Firefox){
-										//	new_constraints = toFirefoxConstraint(new_constraints);
-										//}
 										warnlog("navigator.mediaDevices.getUserMedia starting...");
 										const stream = await window.navigator.mediaDevices.getUserMedia(new_constraints);
 
+										// Add system audio if available
 										if (audioStream && audioStream.getAudioTracks().length) {
 											stream.addTrack(audioStream.getAudioTracks()[0]);
+										}
+										
+										// Add window-specific audio if available
+										if (capturedAudioStream && capturedAudioStream.getAudioTracks().length) {
+											stream.addTrack(capturedAudioStream.getAudioTracks()[0]);
 										}
 
 										resolve(stream);
@@ -27981,6 +28476,34 @@ if (navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 	} catch(e) {
 	  console.error("Error applying Electron/OBS CSS fixes:", e);
 	}
+	
+	// Add styles for audio capture checkboxes
+	const audioCheckboxStyle = document.createElement('style');
+	audioCheckboxStyle.textContent = `
+		.desktop-capturer-selection__audio-option {
+			margin-top: 5px;
+			font-size: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.desktop-capturer-selection__audio-option label {
+			display: flex;
+			align-items: center;
+			cursor: pointer;
+		}
+		.desktop-capturer-selection__audio-option input {
+			margin-right: 5px;
+		}
+		.desktop-capturer-selection__audio-option span {
+			display: flex;
+			align-items: center;
+		}
+		.desktop-capturer-selection__audio-option i {
+			margin-right: 3px;
+		}
+	`;
+	document.head.appendChild(audioCheckboxStyle);
 }
 
 async function grabScreen(quality = 0, audio = true, videoOnEnd = false) {
@@ -28220,6 +28743,13 @@ async function grabScreen(quality = 0, audio = true, videoOnEnd = false) {
 				stream.getVideoTracks()[0].onended = function (e) {
 					// if screen share stops,
 					warnlog(e);
+					
+					// Clean up any window-specific audio capture
+					if (windowAudioCapture && capturedAudioStream) {
+						windowAudioCapture.stop();
+						capturedAudioStream = null;
+					}
+					
 					if (session.streamSrc) {
 						session.streamSrc.getVideoTracks().forEach(function (track) {
 							session.streamSrc.removeTrack(track);
@@ -28332,7 +28862,7 @@ async function grabScreen(quality = 0, audio = true, videoOnEnd = false) {
 					warnUser(getTranslation("screen-permissions-denied"), false, false);
 				}
 			} else {
-				if (audio == true) {
+									if (audio == true) {
 					if (err.name == "NotReadableError") {
 						if (!session.cleanOutput) {
 							warnUser(getTranslation("change-audio-output-device"), false, false);
@@ -29935,31 +30465,26 @@ async function grabAudio(selector = "#audioSource", trackid = null, override = f
 
 	var streams = await getAudioOnly(selector, trackid, override); // Get audio streams
 
-	try {
-		log("STREAMS: " + streams.length);
+    try {
+        log("STREAMS: " + streams.length);
 
-		for (var i = 0; i < streams.length; i++) {
-			streams[i].getAudioTracks().forEach(function (track) {
-				try {
-					session.streamSrc.addTrack(track); // add video track to the preview video
+        for (var i = 0; i < streams.length; i++) {
+            streams[i].getAudioTracks().forEach(function (track) {
+                try {
+                    session.streamSrc.addTrack(track); // add video track to the preview video
 
-					track.onended = function () {
-						errorlog("Track ended unexpectedly");
-						if (!session.cleanOutput) {
-							toggleSettings(true); // forceshow
-						}
-					};
-					log("ok?");
-					// applySavedAudioSettings(track); ## this doesn't work as echo-cancellation(+) needs to be applied via getuserMedia only.
-				} catch (e) {
-					errorlog(e);
-				}
-			});
-		}
-	} catch (e) {
-		errorlog(e);
-	}
-
+                    track.onended = handleAudioTrackEnded; // Add event listener for track end
+                    
+                    log("ok?");
+                    // applySavedAudioSettings(track); ## this doesn't work as echo-cancellation(+) needs to be applied via getuserMedia only.
+                } catch (e) {
+                    errorlog(e);
+                }
+            });
+        }
+    } catch (e) {
+        errorlog(e);
+    }
 	if (Firefox && !FirefoxEnumerated) {
 		if (session.streamSrc && session.streamSrc.getTracks().length) {
 			FirefoxEnumerated = true;
@@ -30453,12 +30978,11 @@ session.applySoloChat = function (apply = true) {
 						settings,
 						function (uid) {
 							log("2: " + uid);
-							try {
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].classList.add("pressed");
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].ariaPressed = "true";
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].classList.remove("hint");
-							} catch (e) {
-								warnlog(e);
+							var button = document.querySelector('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]');
+							if (button) {
+								button.classList.add("pressed");
+								button.ariaPressed = "true";
+								button.classList.remove("hint");
 							}
 						},
 						uuid
@@ -30470,12 +30994,11 @@ session.applySoloChat = function (apply = true) {
 						settings,
 						function (uid) {
 							log(uid);
-							try {
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].classList.remove("pressed");
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].ariaPressed = "false";
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].classList.remove("hint");
-							} catch (e) {
-								warnlog(e);
+							var button = document.querySelector('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]');
+							if (button) {
+								button.classList.remove("pressed");
+								button.ariaPressed = "false";
+								button.classList.remove("hint");
 							}
 						},
 						uuid
@@ -30487,12 +31010,11 @@ session.applySoloChat = function (apply = true) {
 						settings,
 						function (uid) {
 							warnlog("muted the output to:" + uid);
-							try {
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].classList.remove("pressed");
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].ariaPressed = "false";
-								document.querySelectorAll('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]')[0].classList.add("hint");
-							} catch (e) {
-								warnlog(e);
+							var button = document.querySelector('[data-action-type="solo-chat"][data--u-u-i-d="' + uid + '"]');
+							if (button) {
+								button.classList.remove("pressed");
+								button.ariaPressed = "false";
+								button.classList.add("hint");
 							}
 						},
 						uuid
@@ -31378,7 +31900,112 @@ session.postPublish = async function () {
 			}, 400);
 		}, 2000);
 	}
+	
+	if (session.poke){
+		if (session.poke===true){
+			let topic = await generateTopic(session.roomid, session.streamID, false, false, session.hash, window.location.hostname);
+			await triggerNotification(topic)
+		} else {
+			await triggerNotification(session.poke);
+		}
+	}
+	
 };
+function triggerNotification(topic, customMessage = null) {
+  if (!topic) return false;
+  
+  const message = customMessage || ((session.label ? session.label : 'Someone') + 
+    (session.roomid ? ' joined your room' : ' joined your stream'));
+  
+  const notifyUrl = `https://notify.vdo.ninja/?notify=${topic}&message=${encodeURIComponent(message)}`;
+  
+  console.log('Sending notification to:', notifyUrl);
+  
+  return fetch(notifyUrl)
+    .then(response => {
+      console.log('Notification response status:', response.status);
+      if (!response.ok) {
+        return response.text().then(text => {
+          try {
+            const errorData = JSON.parse(text);
+            console.error('Notification server error:', errorData);
+            return false;
+          } catch (e) {
+            console.error('Notification error response:', text);
+            return false;
+          }
+        });
+      }
+      
+      return response.json();
+    })
+    .then(data => {
+      if (data === false) return false;
+      
+      console.log('Notification result:', data);
+      
+      // Check push results to diagnose issues
+      if (data.pushResults && Array.isArray(data.pushResults)) {
+        data.pushResults.forEach(result => {
+          if (!result.success) {
+            console.warn('Push notification failed:', result);
+          }
+        });
+      }
+      
+      return data.success === true;
+    })
+    .catch(error => {
+      console.error('Error sending notification:', error);
+      return false;
+    });
+}
+function hashTopic(text) {
+  const salt1 = "abc12345ASB234ASD1116";
+  const salt2 = "xyzJKL789MNO567PQR890";
+  const salt3 = "9843kasdjfh234jhk234j";
+  let saltedText = salt1 + text + salt2 + text.split('').reverse().join('') + salt3;
+  let hash = 0;
+  if (saltedText.length === 0) return "0";
+  for (let i = 0; i < saltedText.length; i++) {
+    const char = saltedText.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  let hash2 = 0;
+  for (let i = 0; i < saltedText.length; i++) {
+    hash2 = ((hash2 << 7) + hash2) + saltedText.charCodeAt(i);
+    hash2 = hash2 & hash2;
+  }
+  const combinedHash = Math.abs(hash).toString(36) + Math.abs(hash2).toString(36);
+  if (combinedHash.length < 10) {
+    return combinedHash + Math.random().toString(36).substring(2, 12);
+  }
+  return combinedHash;
+}
+
+async function generateTopic(roomId, pushId, viewId, password, hash, domain) {
+  domain = domain || 'vdo.ninja';
+  if (!roomId && !viewId && !pushId) {
+    console.error('At least one of roomId, viewId or pushId is required');
+    return null;
+  }
+  const components = {
+    room: roomId || viewId || pushId,
+    domain: domain.replace(/\./g, '_')
+  };
+  let sensitiveData = Object.values(components).filter(Boolean).join('_');
+  if (hash) {
+    sensitiveData += `_${hash}`;
+  } else if (password) {
+    const passwordHash = await generateHash(password);
+    sensitiveData += `_${passwordHash}`;
+  }
+  const secureTopicHash = hashTopic(sensitiveData);
+  const finalPrefix = components.domain;
+  const finalTopic = `${finalPrefix}_${secureTopicHash}`;
+  return finalTopic;
+}
 
 async function publishScreen2(constraints, audioList = [], audio = true, overrideFramerate = false) {
 	// webcam stream is used to generated an SDP
@@ -33949,73 +34576,158 @@ function setupClosedCaptions() {
 		warnUser(getTranslation("speech-not-suppoted"), false, false);
 	}
 }
-
-async function requestGoogleDriveRecord(ele, state = null, bitrate = null) {
-	var UUID = ele.dataset.UUID || null;
-
-	var filename = UUID;
-	if (session.rpcs[UUID]) {
-		filename = session.rpcs[UUID].label || session.rpcs[UUID].streamID || UUID;
-	}
-	filename = filename.replace(/[\W]+/g, "_");
-	filename = filename.substring(0, 55);
-	filename += "_" + Date.now().toString();
-
-	if (SafariVersion) {
-		filename += ".mp4";
-	} else {
-		filename += ".webm";
-	}
-
-	if (!(session.gdrive && session.gdrive.accessToken)) {
-		session.gdrive = setupGoogleDriveUploader();
-		if (session.gdrive.promise) {
-			log("AWAITING PROMISE");
-			try {
-				await session.gdrive.promise;
-			} catch (e) {
-				return;
-			}
-		}
-	}
-
-	log("PROMISE DONE");
-	var uploadLink = await session.gdrive.startResumableUpload(filename);
-
-	if (!state && ele.classList.contains("pressed")) {
-		var msg = {};
-		msg.requestVideoRecord = false;
-		msg.googleDriveRecord = false;
-		msg.UUID = UUID;
-		session.sendRequest(msg, msg.UUID);
-		ele.classList.remove("pressed");
-		ele.ariaPressed = "false";
-	} else if (state == null || state) {
-		var msg = {};
-		msg.requestVideoRecord = true;
-		msg.googleDriveRecord = uploadLink;
-		msg.UUID = UUID;
-		if (bitrate === null) {
-			window.focus();
-			//bitrate = await promptAlt(getTranslation("what-bitrate"), false, false, 6000); 
-			let response = await promptRecordingOptions(getTranslation("what-bitrate-gdrive"));
-			if (response) {
-				msg.value = response.bitrate;
-				msg.recordConfig = response;
-				session.sendRequest(msg, msg.UUID);
-				ele.classList.add("pressed");
-				ele.ariaPressed = "true"; // "btn-HL-green"
-			} else {
-				return;
-			}
-		} else {
-			msg.value = bitrate;
-			session.sendRequest(msg, msg.UUID);
-			ele.classList.add("pressed");
-			ele.ariaPressed = "true"; // "btn-HL-green"
-		}
-	}
-	pokeIframeAPI("request-video-record", msg.requestVideoRecord, UUID);
+async function requestGoogleDriveRecord(ele, state = null, bitrate = null, event = null) {
+    var UUID = ele.dataset.UUID || null;
+    // Handle CTRL+click for selection
+    if (event && (event.ctrlKey || event.metaKey)) {
+        ele.classList.toggle("armed");
+        ele.ariaPressed = ele.classList.contains("armed") ? "true" : "false";
+        
+        // Add callback only once for all armed buttons
+        if (document.querySelectorAll('[data-action-type="recorder-google-drive-remote"].armed').length === 1 && 
+            ele.classList.contains("armed")) {
+            Callbacks.push([multiGdriveRecord]);
+        }
+        return;
+    }
+    // Single button normal operation
+    if (!state && ele.classList.contains("pressed")) {
+        var msg = {};
+        msg.requestVideoRecord = false;
+        msg.googleDriveRecord = false;
+        msg.UUID = UUID;
+        session.sendRequest(msg, msg.UUID);
+        ele.classList.remove("pressed");
+        ele.ariaPressed = "false";
+    } else if (state == null || state) {
+        if (!(session.gdrive && session.gdrive.accessToken)) {
+            session.gdrive = setupGoogleDriveUploader();
+            if (session.gdrive.promise) {
+                log("AWAITING PROMISE");
+                try {
+                    // Make sure we're initialized before requesting a token
+                    await session.gdrive.ensureInitialized();
+                    session.gdrive.requestAccessToken();
+                    await session.gdrive.promise;
+                    console.log("Promise resolved with token");
+                } catch (e) {
+                    console.error("Error getting token:", e);
+                    ele.classList.remove("armed");
+                    return;
+                }
+            }
+        }
+        
+        var filename = UUID;
+        if (session.rpcs[UUID]) {
+            filename = session.rpcs[UUID].label || session.rpcs[UUID].streamID || UUID;
+        }
+        filename = filename.replace(/[\W]+/g, "_");
+        filename = filename.substring(0, 55);
+        filename += "_" + Date.now().toString();
+        if (SafariVersion) {
+            filename += ".mp4";
+        } else {
+            filename += ".webm";
+        }
+        
+        log("PROMISE DONE");
+        var uploadLink = await session.gdrive.startResumableUpload(filename);
+        
+        var msg = {};
+        msg.requestVideoRecord = true;
+        msg.googleDriveRecord = uploadLink;
+        msg.UUID = UUID;
+        
+        if (bitrate === null) {
+            window.focus();
+            let response = await promptRecordingOptions(getTranslation("what-bitrate-gdrive"));
+            if (response) {
+                msg.value = response.bitrate;
+                msg.recordConfig = response;
+                session.sendRequest(msg, msg.UUID);
+                ele.classList.add("pressed");
+                ele.ariaPressed = "true";
+                ele.classList.remove("armed");
+            } else {
+                ele.classList.remove("armed");
+                return;
+            }
+        } else {
+            msg.value = bitrate;
+            session.sendRequest(msg, msg.UUID);
+            ele.classList.add("pressed");
+            ele.ariaPressed = "true";
+            ele.classList.remove("armed");
+        }
+        
+        pokeIframeAPI("request-video-record", msg.requestVideoRecord, UUID);
+    }
+}
+async function multiGdriveRecord() {
+    const armedButtons = document.querySelectorAll('[data-action-type="recorder-google-drive-remote"].armed');
+    if (!armedButtons.length) return;
+	
+	armedButtons.forEach(button => {
+		button.classList.remove("armed");
+		button.ariaPressed = "false";
+	});
+    
+    // Get recording settings once for all buttons
+    window.focus();
+    let response = await promptRecordingOptions(getTranslation("what-bitrate-gdrive"));
+    if (!response) {
+        return;
+    }
+    
+    // Set up Google Drive authentication once
+    if (!(session.gdrive && session.gdrive.accessToken)) {
+        session.gdrive = setupGoogleDriveUploader();
+        if (session.gdrive.promise) {
+            try {
+                await session.gdrive.promise;
+            } catch (e) {
+                // Auth failed, clean up armed buttons
+                armedButtons.forEach(button => {
+                    button.classList.remove("armed");
+                    button.ariaPressed = "false";
+                });
+                return;
+            }
+        }
+    }
+    
+    // Process each armed button with the same settings
+    for (const button of armedButtons) {
+        const UUID = button.dataset.UUID || null;
+        
+        // Generate unique filename for each recording
+        const filename = ((session.rpcs[UUID] && (session.rpcs[UUID].label || session.rpcs[UUID].streamID)) || UUID)
+            .replace(/[\W]+/g, "_")
+            .substring(0, 55) + 
+            "_" + Date.now().toString() + 
+            (SafariVersion ? ".mp4" : ".webm");
+            
+        // Get upload link for each recording
+        const uploadLink = await session.gdrive.startResumableUpload(filename);
+        
+        // Create message with shared settings
+        const msg = {
+            requestVideoRecord: true,
+            googleDriveRecord: uploadLink,
+            UUID: UUID,
+            value: response.bitrate,
+            recordConfig: response
+        };
+        
+        // Send request and update button state
+        session.sendRequest(msg, msg.UUID);
+        button.classList.add("pressed");
+        button.classList.remove("armed");
+        button.ariaPressed = "true";
+        
+        pokeIframeAPI("request-video-record", true, UUID);
+    }
 }
 
 async function requestVideoRecord(ele, state = null, bitrate = null) {
@@ -41240,335 +41952,372 @@ function setHotKey(keyinput = true) {
 }
 
 function setupGoogleDriveUploader(filename = false, sessionUri = false) {
-	if (!session.gdrive) {
-		session.gdrive = {};
-		session.gdrive.accessToken = false;
-	}
+    if (!session.gdrive) {
+        session.gdrive = {};
+        session.gdrive.accessToken = false;
+    }
 
-	var gdrive = {};
-	var gapiClient = false;
-	var tokenClient;
-	var uploading = false;
-	var tokenClientGood = false;
-	var tokenChain = {};
+    var gdrive = {};
+    var uploading = false;
+    var tokenClient;
+    var isInitialized = false;
+    var initializationPromise;
 
-	const DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest";
-	const SCOPES = "https://www.googleapis.com/auth/drive.file";
+    const SCOPES = "https://www.googleapis.com/auth/drive.file";
 
-	var totalChunksRecorded = 0;
-	var totalChunksUploaded = 0;
-	var currentByte = 0;
-	var chunks = new Blob([]);
-	var finalized = false;
+    var totalChunksRecorded = 0;
+    var totalChunksUploaded = 0;
+    var currentByte = 0;
+    var chunks = new Blob([]);
+    var finalized = false;
 
-	gdrive.promise = false;
-	gdrive.sessionUri = sessionUri;
+    gdrive.promise = false;
+    gdrive.sessionUri = sessionUri;
+    
+    // Create an initialization promise to track when everything is ready
+    initializationPromise = new Promise((resolve, reject) => {
+        // We'll resolve this when the token client is fully initialized
+        if (!gdrive.sessionUri) {
+            loadScript("https://accounts.google.com/gsi/client", function() {
+                log("Google Identity Services loaded");
+                initTokenClient();
+                resolve();
+            });
+        } else {
+            resolve();
+        }
+    });
 
-	if (!filename && !sessionUri) {
-		var res, rej;
-		gdrive.promise = new Promise((resolve, reject) => {
-			res = resolve;
-			rej = reject;
-		});
-		gdrive.promise.resolve = res;
-		gdrive.promise.reject = rej;
-	}
+    // Setup the authentication promise
+    if (!filename && !sessionUri) {
+        var res, rej;
+        gdrive.promise = new Promise((resolve, reject) => {
+            res = resolve;
+            rej = reject;
+        });
+        gdrive.promise.resolve = res;
+        gdrive.promise.reject = rej;
+    }
 
-	gdrive.startResumableUpload = async function (fname, retry = true) {
-		console.log("startResumableUpload", retry);
+    gdrive.startResumableUpload = async function(fname, retry = true) {
+        console.log("startResumableUpload", retry);
 
-		const fileMetadata = { name: fname };
+        const fileMetadata = { name: fname };
 
-		if (session.GDRIVE_FOLDERNAME) {
-			let folderId = null;
+        if (session.GDRIVE_FOLDERNAME) {
+            let folderId = null;
 
-			const query = `name = '${session.GDRIVE_FOLDERNAME}' and mimeType = 'application/vnd.google-apps.folder' and 'root' in parents and trashed = false`;
-			const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`;
+            const query = `name = '${session.GDRIVE_FOLDERNAME}' and mimeType = 'application/vnd.google-apps.folder' and 'root' in parents and trashed = false`;
+            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}`;
 
-			const response = await fetch(url, {
-				method: "GET",
-				headers: {
-					Authorization: "Bearer " + session.gdrive.accessToken
-				}
-			});
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Authorization: "Bearer " + session.gdrive.accessToken
+                }
+            });
 
-			const result = await response.json();
+            const result = await response.json();
 
-			if (result.files && result.files.length > 0) {
-				// Assuming the first found folder is the one we want
-				folderId = result.files[0].id;
-			}
+            if (result.files && result.files.length > 0) {
+                folderId = result.files[0].id;
+            }
 
-			if (!folderId) {
-				log("creating new folder as folder not found.");
-				try {
-					const folderMetadata = {
-						name: session.GDRIVE_FOLDERNAME,
-						mimeType: "application/vnd.google-apps.folder"
-					};
+            if (!folderId) {
+                log("creating new folder as folder not found.");
+                try {
+                    const folderMetadata = {
+                        name: session.GDRIVE_FOLDERNAME,
+                        mimeType: "application/vnd.google-apps.folder"
+                    };
 
-					const createResponse = await fetch("https://www.googleapis.com/drive/v3/files", {
-						method: "POST",
-						headers: {
-							Authorization: "Bearer " + session.gdrive.accessToken,
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify(folderMetadata)
-					});
+                    const createResponse = await fetch("https://www.googleapis.com/drive/v3/files", {
+                        method: "POST",
+                        headers: {
+                            Authorization: "Bearer " + session.gdrive.accessToken,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(folderMetadata)
+                    });
 
-					const createResult = await createResponse.json();
-					folderId = createResult.id;
-				} catch (e) {
-					errorlog(e);
-				}
-			}
+                    const createResult = await createResponse.json();
+                    folderId = createResult.id;
+                } catch (e) {
+                    errorlog(e);
+                }
+            }
 
-			if (folderId) {
-				fileMetadata.parents = [folderId];
-			}
-		}
-		// log("STARTING UPLOADING");
-		const metadata = new Blob([JSON.stringify(fileMetadata)], { type: "application/json" });
-		try {
-			var response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
-				method: "POST",
-				headers: {
-					Authorization: "Bearer " + session.gdrive.accessToken,
-					"Content-Type": "application/json; charset=UTF-8"
-				},
-				body: metadata
-			});
-			if (!response.ok) {
-				if (!session.cleanOutput) {
-					warnUser("⚠️ Error: Failed to configure the Google Drive upload.");
-				}
-				throw new Error("Start resumable upload failed: " + response.statusText);
-			}
-			return response.headers.get("Location"); // This is the session URI for the resumable upload
-		} catch (err) {
-			errorlog(err);
-			try {
-				if (retry) {
-					session.gdrive.accessToken = false;
-					var res, rej;
-					gdrive.promise = new Promise((resolve, reject) => {
-						res = resolve;
-						rej = reject;
-					});
-					gdrive.promise.resolve = res;
-					gdrive.promise.reject = rej;
-					filename = false;
-					tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? "" : "consent" });
-					await gdrive.promise;
+            if (folderId) {
+                fileMetadata.parents = [folderId];
+            }
+        }
 
-					if (session.gdrive.accessToken) {
-						return await gdrive.startResumableUpload(fname, false);
-					} else {
-						return false;
-					}
-				}
-			} catch (err2) {
-				errorlog(err2);
-				return false;
-			}
-		}
-	};
+        const metadata = new Blob([JSON.stringify(fileMetadata)], { type: "application/json" });
+        try {
+            var response = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable", {
+                method: "POST",
+                headers: {
+                    Authorization: "Bearer " + session.gdrive.accessToken,
+                    "Content-Type": "application/json; charset=UTF-8"
+                },
+                body: metadata
+            });
+            if (!response.ok) {
+                if (!session.cleanOutput) {
+                    warnUser("⚠️ Error: Failed to configure the Google Drive upload.");
+                }
+                throw new Error("Start resumable upload failed: " + response.statusText);
+            }
+            return response.headers.get("Location"); // This is the session URI for the resumable upload
+        } catch (err) {
+            errorlog(err);
+            try {
+                if (retry) {
+                    session.gdrive.accessToken = false;
+                    var res, rej;
+                    gdrive.promise = new Promise((resolve, reject) => {
+                        res = resolve;
+                        rej = reject;
+                    });
+                    gdrive.promise.resolve = res;
+                    gdrive.promise.reject = rej;
+                    filename = false;
+                    
+                    // Make sure we're initialized before requesting token
+                    await gdrive.ensureInitialized();
+                    tokenClient.requestAccessToken();
+                    await gdrive.promise;
 
-	if (!gdrive.sessionUri) {
-		loadScript("https://apis.google.com/js/api.js", function () {
-			log("Google API loaded");
-			gapiLoaded(); // Call the function that initializes gapi
-		});
+                    if (session.gdrive.accessToken) {
+                        return await gdrive.startResumableUpload(fname, false);
+                    } else {
+                        return false;
+                    }
+                }
+            } catch (err2) {
+                errorlog(err2);
+                return false;
+            }
+        }
+    };
 
-		loadScript("https://accounts.google.com/gsi/client", function () {
-			log("Google Identity Services loaded");
-			gisLoaded(); // Call the function that initializes Google Identity Services
-		});
-	}
+    function initTokenClient() {
+        console.log("Initializing GIS token client");
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: session.GDRIVE_CLIENT_ID,
+            scope: SCOPES,
+            callback: onTokenResponse,
+            error_callback: onTokenError
+        });
+        
+        isInitialized = true;
+        
+        // If we have no promise yet but the user requested access, set one up
+        if (!gdrive.promise && !sessionUri && !filename) {
+            var res, rej;
+            gdrive.promise = new Promise((resolve, reject) => {
+                res = resolve;
+                rej = reject;
+            });
+            gdrive.promise.resolve = res;
+            gdrive.promise.reject = rej;
+        }
+        
+        // If we have a filename, request token automatically
+        if (filename) {
+            console.log("Requesting access token for immediate upload");
+            setTimeout(() => {
+                tokenClient.requestAccessToken();
+            }, 500); // Small delay to ensure tokenClient is fully initialized
+        }
+    }
 
-	function gapiLoaded() {
-		console.log("gapiLoaded");
-		gapi.load("client", initializeGapiClient);
-	}
+    function onTokenError(response) {
+        console.warn("Token error:", response);
+        if (gdrive.promise && gdrive.promise.reject) {
+            gdrive.promise.reject(response);
+        }
+    }
 
-	async function initializeGapiClient() {
-		console.log("initializeGapiClient");
-		await gapi.client.init({ apiKey: session.GDRIVE_API_KEY, discoveryDocs: [DISCOVERY_DOC] });
+    async function onTokenResponse(tokenResponse) {
+        console.log("Token response received", tokenResponse);
+        
+        if (tokenResponse.error === "popup_closed_by_user" || tokenResponse.error === "access_denied") {
+            errorlog("User cancelled the sign-in process.");
+            if (gdrive.promise && gdrive.promise.reject) {
+                gdrive.promise.reject(new Error("User cancelled authentication"));
+            }
+        } else if (tokenResponse.error !== undefined) {
+            errorlog("Token error: " + tokenResponse.error);
+            if (gdrive.promise && gdrive.promise.reject) {
+                gdrive.promise.reject(new Error(tokenResponse.error));
+            }
+        } else {
+            // Successfully got access token
+            console.log("Access token obtained successfully");
+            session.gdrive.accessToken = tokenResponse.access_token;
+            
+            if (filename) {
+                try {
+                    gdrive.sessionUri = await gdrive.startResumableUpload(filename);
+                    console.log("Session URI:", gdrive.sessionUri);
+                    uploadLoop();
+                } catch (e) {
+                    console.error("Error starting upload:", e);
+                    if (gdrive.promise && gdrive.promise.reject) {
+                        gdrive.promise.reject(e);
+                    }
+                    return;
+                }
+            }
+            
+            // Always resolve the promise if we got a token successfully
+            if (gdrive.promise && gdrive.promise.resolve) {
+                console.log("Resolving promise with access token");
+                gdrive.promise.resolve(tokenResponse.access_token);
+            }
+        }
+    }
 
-		if (tokenClient) {
-			tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? "" : "consent" });
-			if (tokenClientGood) {
-				session.gdrive.accessToken = gapi.auth.getToken().access_token;
-				if (filename) {
-					gdrive.sessionUri = await gdrive.startResumableUpload(filename);
-					console.log(gdrive.sessionUri);
-					uploadLoop();
-				} else if (gdrive.promise && gdrive.promise.resolve) {
-					gdrive.promise.resolve();
-				}
-			} else {
-				gapiClient = true;
-			}
-		} else {
-			gapiClient = true;
-		}
-	}
+    // Check if initialized and wait if not
+    gdrive.ensureInitialized = async function() {
+        if (!isInitialized) {
+            console.log("Waiting for initialization to complete...");
+            await initializationPromise;
+            console.log("Initialization complete");
+        }
+    };
 
-	async function gisLoaded() {
-		console.log("gisLoaded");
-		tokenClient = google.accounts.oauth2.initTokenClient({
-			client_id: session.GDRIVE_CLIENT_ID,
-			scope: SCOPES,
-			callback: onTokenResponse,
-			error_callback: onTokenError
-		});
-	}
-	function onTokenError(response) {
-		console.warn(response);
-		if (gdrive.promise.reject) {
-			gdrive.promise.reject();
-		}
-	}
-	async function onTokenResponse(response) {
-		console.log("onTokenResponse");
-		if (response.error === "popup_closed_by_user" || response.error === "access_denied") {
-			errorlog("User cancelled the sign-in process.");
-			if (gdrive.promise.reject) {
-				gdrive.promise.reject();
-			}
-		} else if (response.error !== undefined) {
-			if (gdrive.promise.reject) {
-				gdrive.promise.reject();
-			}
-		} else if (gapiClient) {
-			tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? "" : "consent" });
-			tokenChain = gapi.auth.getToken();
-			session.gdrive.accessToken = tokenChain.access_token;
-			if (filename) {
-				gdrive.sessionUri = await gdrive.startResumableUpload(filename);
-				console.log(gdrive.sessionUri);
-				uploadLoop();
-			} else if (gdrive.promise && gdrive.promise.resolve) {
-				gdrive.promise.resolve();
-			}
-		} else {
-			tokenClientGood = true;
-		}
-	}
-	function handleSignoutClick() {
-		console.log("handleSignoutClick");
-		const token = gapi.client.getToken();
-		if (token) {
-			google.accounts.oauth2.revoke(token.access_token);
-			gapi.client.setToken("");
-		}
-	}
+    // Function to manually request access token
+    gdrive.requestAccessToken = async function() {
+        await gdrive.ensureInitialized();
+        
+        if (tokenClient) {
+            console.log("Manually requesting access token");
+            tokenClient.requestAccessToken();
+        } else {
+            console.error("Token client not initialized");
+            if (gdrive.promise && gdrive.promise.reject) {
+                gdrive.promise.reject(new Error("Token client not initialized"));
+            }
+        }
+    };
 
-	/// the following doesn't need to be signed in; just access to the gdrive.sessionUri URL
+    gdrive.revokeToken = function() {
+        if (session.gdrive.accessToken) {
+            google.accounts.oauth2.revoke(session.gdrive.accessToken, () => {
+                console.log('Access token revoked');
+                session.gdrive.accessToken = false;
+            });
+        }
+    };
 
-	gdrive.addChunk = function (chunk) {
-		if (chunk && chunks) {
-			totalChunksRecorded += chunk.size;
-			chunks = new Blob([chunks, chunk], { type: chunk.type });
-			if (!session.cleanOutput) {
-				getById("progressContainer").classList.remove("hidden");
-			}
-			updateProgressBar();
-		} else if (chunk === false) {
-			finalized = true;
-		}
-		uploadLoop();
-	};
-	async function uploadLoop() {
-		if (uploading || !gdrive.sessionUri) {
-			return;
-		}
-		uploading = true;
-		while (chunks && (finalized || chunks.size > 256 * 1024)) {
-			if (finalized) {
-				var chunk = chunks.slice(0, chunks.size);
-				let res = await finalizeUpload(chunk);
-				log(res);
-				return;
-			} else {
-				var chunkSize = Math.floor(chunks.size / (256 * 1024)) * (256 * 1024);
-				var chunk = chunks.slice(0, chunkSize);
-				chunks = chunks.slice(chunkSize);
-			}
-			currentByte = await uploadChunk(chunk);
-		}
-		uploading = false;
-	}
-	async function uploadChunk(chunk) {
-		const endByte = currentByte + chunk.size - 1;
-		totalChunksUploaded += chunk.size;
-		const headers = new Headers({
-			"Content-Range": `bytes ${currentByte}-${endByte}/*`
-		});
-		const response = await fetch(gdrive.sessionUri, {
-			method: "PUT",
-			headers: headers,
-			body: chunk
-		});
-		if (!response.ok && response.status !== 308) {
-			throw new Error(`Failed to upload chunk: ${response.statusText}`);
-		}
-		updateProgressBar();
-		return endByte + 1;
-	}
-	async function finalizeUpload(chunk) {
-		const endByte = currentByte + chunk.size - 1;
-		const headers = new Headers({
-			"Content-Range": `bytes ${currentByte}-${endByte}/${endByte + 1}`
-		});
-		const response = await fetch(gdrive.sessionUri, {
-			method: "PUT",
-			headers: headers,
-			body: chunk
-		});
-		if (chunk) {
-			totalChunksUploaded += chunk.size;
-		}
-		updateProgressBar(2);
+    /// the following doesn't need to be signed in; just access to the gdrive.sessionUri URL
 
-		return response.json();
-	}
-	function updateProgressBar(state = 0) {
-		if (state == 2) {
-			setTimeout(function () {
-				if (getById("progressBar").style.width == "100%") {
-					getById("progressContainer").classList.add("hidden");
-				}
-			}, 1000);
-			getById("progressBar").style.width = "100%";
-			var msg = {};
-			//if (altUUID){
-			//	msg.alt = true
-			//}
-			msg.gdrive = { up: parseInt(totalChunksUploaded / 1024), rec: parseInt(totalChunksUploaded / 1024), state: state };
-			for (var i = 0; i < session.directorList.length; i++) {
-				msg.UUID = session.directorList[i];
-				session.sendMessage(msg, msg.UUID);
-			}
-		} else if (totalChunksRecorded > 0) {
-			var progressPercentage = (totalChunksUploaded / (totalChunksRecorded || 1)) * 100;
-			var bytesLeft = parseInt((totalChunksRecorded - totalChunksUploaded) / 1024);
-			getById("progressBar").style.width = progressPercentage + "%";
-			getById("progressBar").innerHTML = "Upload progress to Google Drive: " + progressPercentage.toFixed(2) + "%, with " + convertKilobytes(bytesLeft) + " left";
+    gdrive.addChunk = function(chunk) {
+        if (chunk && chunks) {
+            totalChunksRecorded += chunk.size;
+            chunks = new Blob([chunks, chunk], { type: chunk.type });
+            if (!session.cleanOutput) {
+                getById("progressContainer").classList.remove("hidden");
+            }
+            updateProgressBar();
+        } else if (chunk === false) {
+            finalized = true;
+        }
+        uploadLoop();
+    };
 
-			var msg = {};
-			//if (altUUID){
-			//	msg.alt = true
-			//}
-			msg.gdrive = { up: parseInt(totalChunksUploaded / 1024), rec: parseInt(totalChunksRecorded / 1024), state: state };
-			for (var i = 0; i < session.directorList.length; i++) {
-				msg.UUID = session.directorList[i];
-				session.sendMessage(msg, msg.UUID);
-			}
-		}
-	}
-	return gdrive;
+    async function uploadLoop() {
+        if (uploading || !gdrive.sessionUri) {
+            return;
+        }
+        uploading = true;
+        while (chunks && (finalized || chunks.size > 256 * 1024)) {
+            if (finalized) {
+                var chunk = chunks.slice(0, chunks.size);
+                let res = await finalizeUpload(chunk);
+                log(res);
+                return;
+            } else {
+                var chunkSize = Math.floor(chunks.size / (256 * 1024)) * (256 * 1024);
+                var chunk = chunks.slice(0, chunkSize);
+                chunks = chunks.slice(chunkSize);
+            }
+            currentByte = await uploadChunk(chunk);
+        }
+        uploading = false;
+    }
+
+    async function uploadChunk(chunk) {
+        const endByte = currentByte + chunk.size - 1;
+        totalChunksUploaded += chunk.size;
+        const headers = new Headers({
+            "Content-Range": `bytes ${currentByte}-${endByte}/*`
+        });
+        const response = await fetch(gdrive.sessionUri, {
+            method: "PUT",
+            headers: headers,
+            body: chunk
+        });
+        if (!response.ok && response.status !== 308) {
+            throw new Error(`Failed to upload chunk: ${response.statusText}`);
+        }
+        updateProgressBar();
+        return endByte + 1;
+    }
+
+    async function finalizeUpload(chunk) {
+        const endByte = currentByte + chunk.size - 1;
+        const headers = new Headers({
+            "Content-Range": `bytes ${currentByte}-${endByte}/${endByte + 1}`
+        });
+        const response = await fetch(gdrive.sessionUri, {
+            method: "PUT",
+            headers: headers,
+            body: chunk
+        });
+        if (chunk) {
+            totalChunksUploaded += chunk.size;
+        }
+        updateProgressBar(2);
+
+        return response.json();
+    }
+
+    function updateProgressBar(state = 0) {
+        // Implementation unchanged
+        if (state == 2) {
+            setTimeout(function() {
+                if (getById("progressBar").style.width == "100%") {
+                    getById("progressContainer").classList.add("hidden");
+                }
+            }, 1000);
+            getById("progressBar").style.width = "100%";
+            var msg = {};
+            msg.gdrive = { up: parseInt(totalChunksUploaded / 1024), rec: parseInt(totalChunksUploaded / 1024), state: state };
+            for (var i = 0; i < session.directorList.length; i++) {
+                msg.UUID = session.directorList[i];
+                session.sendMessage(msg, msg.UUID);
+            }
+        } else if (totalChunksRecorded > 0) {
+            var progressPercentage = (totalChunksUploaded / (totalChunksRecorded || 1)) * 100;
+            var bytesLeft = parseInt((totalChunksRecorded - totalChunksUploaded) / 1024);
+            getById("progressBar").style.width = progressPercentage + "%";
+            getById("progressBar").innerHTML = "Upload progress to Google Drive: " + progressPercentage.toFixed(2) + "%, with " + convertKilobytes(bytesLeft) + " left";
+
+            var msg = {};
+            msg.gdrive = { up: parseInt(totalChunksUploaded / 1024), rec: parseInt(totalChunksRecorded / 1024), state: state };
+            for (var i = 0; i < session.directorList.length; i++) {
+                msg.UUID = session.directorList[i];
+                session.sendMessage(msg, msg.UUID);
+            }
+        }
+    }
+    
+    return gdrive;
 }
+
 function convertKilobytes(kilobytes) {
 	const KB_IN_MB = 1024;
 	const KB_IN_GB = 1024 * 1024;
@@ -41923,6 +42672,8 @@ async function recordVideo(target, event = null, videoKbps = false) {
 	if (session.record === false) {
 		warnlog("recordings are disabled by decree of thy host magistrate");
 	}
+	
+	if (!target){return;}
 
 	var UUID = target.dataset.UUID;
 
@@ -42081,15 +42832,7 @@ async function recordVideo(target, event = null, videoKbps = false) {
 	
 	//
 
-	var timestamp = Date.now();
-	var filename = "";
-	if (session.rpcs[UUID].label || session.rpcs[UUID].streamID) {
-		filename = session.rpcs[UUID].label || session.rpcs[UUID].streamID;
-		filename = filename.replace(/[\W]+/g, "_");
-		filename = filename.substring(0, 200);
-	}
 
-	filename += "_" + timestamp.toString();
 
 	var cancell = false;
 	if (typeof video.srcObject === "undefined" || !video.srcObject) {
@@ -42126,6 +42869,8 @@ async function recordVideo(target, event = null, videoKbps = false) {
 				target
 			);
 		}
+		
+		
 
 		video.recording = false;
 		updateLocalRecordButton(UUID, -2);
@@ -42268,6 +43013,18 @@ async function recordVideo(target, event = null, videoKbps = false) {
 		//	video.recorder.dropbox = await streamVideoToDropbox();
 		//}
 	}
+	
+	var timestamp = Date.now();
+	var filename = "";
+	if (session.rpcs[UUID].label && session.rpcs[UUID].streamID) {
+		filename = session.rpcs[UUID].label || session.rpcs[UUID].streamID;
+	} else {
+		filename = session.rpcs[UUID].label + "_" + session.rpcs[UUID].streamID;
+	}
+	
+	filename = filename.replace(/[\W]+/g, "_");
+	filename = filename.substring(0, 200);
+	filename += "_" + timestamp.toString();
 
 	var writer = writable.getWriter();
 	video.recorder.writer = writer;
@@ -46166,6 +46923,20 @@ async function targetGuest(target, action, value = null) {
 		} else {
 			return false;
 		}
+	} else if (action == 29 || action == "mixorder") {
+		var element = getGuestTarget("order-down", target); 
+		if (element) {
+			if (value === true) {
+				changeOrder(+1,element.dataset.UUID);
+			} else if (value === false) {
+				changeOrder(-1,element.dataset.UUID);
+			} else {
+				changeOrder(value,element.dataset.UUID);
+			}
+			return true;
+		} else {
+			return false;
+		}
 	} else if (action == "startRoomTimer") {
 		var element = getGuestTarget("create-timer", target);
 		if (element) {
@@ -49411,7 +50182,53 @@ function setupCommands() {
 		playbackMIDI(data);
 		return true;
 	};
-
+	
+	commands.zoom = function (value = null, value2 = null) {
+		if (value !== null) {
+			const zoomValue = parseFloat(value);
+			const isAbsolute = value2 === true || value2 === "true" || value2 === "abs";
+			session.remoteZoom(zoomValue, isAbsolute);
+			return { zoom: zoomValue, absolute: isAbsolute };
+		}
+		return false;
+	};
+	
+	commands.focus = function (value = null, value2 = null) {
+		if (value !== null) {
+			const focusValue = parseFloat(value);
+			session.remoteFocus(focusValue);
+			return { focus: focusValue };
+		}
+		return false;
+	};
+	
+	commands.pan = function (value = null, value2 = null) {
+		if (value !== null) {
+			const panValue = parseFloat(value);
+			session.remotePan(panValue);
+			return { pan: panValue };
+		}
+		return false;
+	};
+	
+	commands.tilt = function (value = null, value2 = null) {
+		if (value !== null) {
+			const tiltValue = parseFloat(value);
+			session.remoteTilt(tiltValue);
+			return { tilt: tiltValue };
+		}
+		return false;
+	};
+	
+	commands.exposure = function (value = null, value2 = null) {
+		if (value !== null) {
+			const exposureValue = parseFloat(value);
+			session.remoteExposure(exposureValue);
+			return { exposure: exposureValue };
+		}
+		return false;
+	};
+	
 	commands.soloVideo = function (value = null, value2 = null) {
 		var element = getById("highlightDirector");
 		if (value && value == "toggle") {
@@ -49516,12 +50333,12 @@ function setupCommands() {
 				response.index = value;
 			} else if (checkType(value) === "Array") {
 				log(value);
-			    session.layout_array = value;
-			    if (session.layout_array){
+				session.layout_array = value;
+				if (session.layout_array){
 					session.layout = combinedLayout(session.layout_array);
 				}
 				updateMixer();
-			   
+				
 				if (session.director) {
 				   issueLayout("0");
 				   response.issued = true;
@@ -49591,20 +50408,48 @@ function setupCommands() {
 					if (session.director) {
 						var combined = {};
 						for (var i = 0; i < temp.length; i++) {
-							if (!temp[i] || !("slot" in temp[i])) {
-								continue;
+							if (!temp[i]) continue;
+							
+							let streamID = null;
+							
+							// First check if there's a slot assigned
+							if ("slot" in temp[i]) {
+								const slotNumber = parseInt(temp[i].slot) + 1;
+								streamID = session.currentSlots[slotNumber];
 							}
 							
-							// Find stream ID for this slot from session.currentSlots directly
-							const slotNumber = parseInt(temp[i].slot) + 1;
-							let streamID = session.currentSlots[slotNumber];
-							
-							if (!streamID) {
-								warnlog("Slot target not found?");
-								continue;
+							// If no stream found via slot, check defaultStreamID
+							if (!streamID && temp[i].defaultStreamID) {
+								// Check if this defaultStreamID is connected and not assigned to another slot
+								let isConnected = false;
+								let isAlreadyAssigned = false;
+								
+								for (let j in session.rpcs) {
+									if (session.rpcs[j].streamID === temp[i].defaultStreamID) {
+										isConnected = true;
+										// Check if this stream is assigned to any slot
+										for (let slot in session.currentSlots) {
+											if (session.currentSlots[slot] === temp[i].defaultStreamID) {
+												isAlreadyAssigned = true;
+												break;
+											}
+										}
+										break;
+									}
+								}
+								
+								if (isConnected && !isAlreadyAssigned) {
+									streamID = temp[i].defaultStreamID;
+								}
 							}
 							
-							combined[streamID] = temp[i];
+							// If we found a streamID, use it, otherwise add to empty slot
+							if (streamID) {
+								combined[streamID] = temp[i];
+							} else {
+								if (!combined[""]) combined[""] = [];
+								combined[""].push(temp[i]);
+							}
 						}
 						session.layout = combined;
 						log("issuing layout:");
@@ -49674,7 +50519,7 @@ async function processMessage(data) {
 					} else if (data.value == "false") {
 						data.value = false;
 					}
-					return Commands[data.action](data.value);
+					return Commands[data.action](data.value, data.value2 || null);
 				} else {
 					return Commands[data.action]();
 				}
@@ -49795,6 +50640,41 @@ function midiHotkeysNote(note, velocity = false) {
 			}
 		}
 	}
+/* 	if (velocity !== false && typeof velocity !== "undefined") {
+		// Get integer value of velocity
+		const velocityValue = parseInt(velocity);
+		
+		// Check if valid MIDI velocity (0-127)
+		if (!isNaN(velocityValue) && velocityValue >= 0 && velocityValue <= 127) {
+			// Camera control MIDI commands using Channel 1, various CC numbers
+			if (note == "C5") {
+				// Zoom - scale 0-127 to percentage or use relative value
+				const normalizedValue = velocityValue / 127; // 0 to 1 range
+				session.remoteZoom(normalizedValue, true); // absolute value
+				return { zoom: normalizedValue, absolute: true };
+			} else if (note == "D5") {
+				// Focus - scale 0-127 to focus value
+				const normalizedValue = velocityValue / 127; // 0 to 1 range
+				session.remoteFocus(normalizedValue);
+				return { focus: normalizedValue };
+			} else if (note == "E5") {
+				// Pan - scale 0-127 to pan value
+				const normalizedValue = (velocityValue - 64) / 64; // -1 to 1 range
+				session.remotePan(normalizedValue);
+				return { pan: normalizedValue };
+			} else if (note == "F5") {
+				// Tilt - scale 0-127 to tilt value
+				const normalizedValue = (velocityValue - 64) / 64; // -1 to 1 range
+				session.remoteTilt(normalizedValue);
+				return { tilt: normalizedValue };
+			} else if (note == "G5") {
+				// Exposure - scale 0-127 to exposure value
+				const normalizedValue = velocityValue / 127; // 0 to 1 range
+				session.remoteExposure(normalizedValue);
+				return { exposure: normalizedValue };
+			}
+		}
+	} */
 }
 
 function getRightOrderedElement(selector, guestslot, UUID = false) {
@@ -51541,28 +52421,33 @@ function stopSecondScreenshare() {
 			errorlog(e);
 		}
 	}
-
-	session.screenStream.getTracks().forEach(function (track) {
-		// previous video track; saving it. Must remove the track at some point.
-		for (UUID in session.pcs) {
-			if (!("realUUID" in session.pcs[UUID])) {
-				continue;
-			} // not a screen share, so skip
-			var senders = getSenders2(UUID);
-			senders.forEach(sender => {
-				// I suppose there could be a race condition between negotiating and updating this. if joining at the same time as changnig streams?
-				if (sender.track && sender.track.kind == "video") {
-					sender.track.enabled = false;
-				}
-			});
-		}
-		if (track.id in screenshareTracks) {
-			// obs isn't included, so no point to check track.kind
-			session.screenStream.removeTrack(track);
-			track.stop();
-			screenshareTracks[track.id] = false;
-		}
-	});
+	if (session.screenStream){
+		session.screenStream.getTracks().forEach(function (track) {
+			// previous video track; saving it. Must remove the track at some point.
+			for (UUID in session.pcs) {
+				if (!("realUUID" in session.pcs[UUID])) {
+					continue;
+				} // not a screen share, so skip
+				var senders = getSenders2(UUID);
+				senders.forEach(sender => {
+					// I suppose there could be a race condition between negotiating and updating this. if joining at the same time as changnig streams?
+					if (sender.track && sender.track.kind == "video") {
+						sender.track.enabled = false;
+					}
+				});
+			}
+			if (track.id in screenshareTracks) {
+				// obs isn't included, so no point to check track.kind
+				session.screenStream.removeTrack(track);
+				track.stop();
+				screenshareTracks[track.id] = false;
+			}
+		});
+	}
+	if (document.getElementById("container_screen_director")){
+		document.getElementById("container_screen_director")
+	}
+	
 	session.screenStream = false;
 	session.screenShareState = false;
 	pokeIframeAPI("screen-share-state", session.screenShareState, null, session.streamID);
@@ -51578,6 +52463,10 @@ function stopSecondScreenshare() {
 	getById("screenshare3button").classList.remove("green");
 	getById("screenshare3button").ariaPressed = "false";
 	getById("screenshare3button").title = getTranslation("share-a-screen");
+	
+	if (document.getElementById("screensharesource")){
+		document.getElementById("screensharesource").load()
+	}
 
 	setTimeout(function () {
 		updateMixer();

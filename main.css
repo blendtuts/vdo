@@ -639,7 +639,7 @@ button.hint {
 	width: 100%;
 	padding: 1px;
 	color: #FFF;
-	min-height: 20px;
+	background-color: #0005;
 }
 #head1{
 	display: inline-block;
@@ -1590,9 +1590,6 @@ button.btnArmTransferRoom.selected{
 	}
 	#gridlayout>#container.vidcon {
 		height:85%
-	}
-	#header{
-		min-height:0px;
 	}
 }
 @media only screen and (max-height: 300px){
@@ -4621,13 +4618,13 @@ a#reshare {
 .video-meter {
 	padding:0.5vh;
 	display:block;
-	width:0.5vh;
-	height:0.5vh;
+	width: min(1vh, 1vw);
+	height: min(1vh, 1vw);
 	min-width:10px;
 	min-height:10px;
 	top: 2vh;
 	right: 2vh;
-	background-color:green;
+	background-color:#00c300;
 	position:absolute;
 	border-radius: 2vh;
 	pointer-events:none;
@@ -4707,16 +4704,40 @@ a#reshare {
 .PPTActive {
 	box-shadow: 0px 0px 10px green;
 }
+
+
 .video-mute-state {
-	top: 2vh;
-	right: 2vh;
-	position: absolute;
-	color:white;
-	border-radius: 2vh;
-	background-color:#b11313;
-	padding: 2px 2px 2px 1px;
-	z-index: 2;
+    top: 2vh;
+    right: 2vh;
+    position: absolute;
+    color: white;
+    border-radius: 2vh;
+    background-color: #b11313;
+    padding: 2px 2px 2px 1px;
+    z-index: 2;
 }
+
+.video-mute-state.unmuted {
+    background-color: green;
+}
+
+.video-mute-state .la-microphone {
+    display: none;
+}
+
+.video-mute-state .la-microphone-slash {
+    display: inline-block;
+}
+
+.video-mute-state.unmuted .la-microphone {
+    display: inline-block;
+}
+
+.video-mute-state.unmuted .la-microphone-slash {
+    display: none;
+}
+
+
 
 .video-mute-state-userlist {
 	display:inline-block;
@@ -5281,7 +5302,6 @@ iframe.insecure {
 	max-height: 500px;
 	overflow: hidden;
 }
-
 .desktop-capturer-selection {
 	position: fixed;
 	top: 0;
@@ -5343,7 +5363,39 @@ iframe.insecure {
 	overflow: hidden;
 }
 
-.video-zoom-slider {
+/* New styles for audio capture checkboxes */
+.desktop-capturer-selection__audio-option {
+	margin-top: 5px;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.desktop-capturer-selection__audio-option label {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 3px;
+	background: rgba(60,60,60,0.5);
+}
+.desktop-capturer-selection__audio-option label:hover {
+	background: rgba(80,80,80,0.7);
+}
+.desktop-capturer-selection__audio-option input {
+	margin-right: 5px;
+	width: 14px;
+	height: 14px;
+}
+.desktop-capturer-selection__audio-option span {
+	display: flex;
+	align-items: center;
+}
+.desktop-capturer-selection__audio-option i {
+	margin-right: 3px;
+	font-size: 14px;
+}
+.video-zoom-slider0 {
   position: absolute;
   bottom: 45px;
   left: 10px;
@@ -5358,12 +5410,12 @@ iframe.insecure {
   z-index: 5;
 }
 
-.video-zoom-slider:hover,
+.video-zoom-slider0:hover,
 .video-container:hover .video-zoom-slider {
   opacity: 1;
 }
 
-.video-zoom-slider input[type="range"] {
+.video-zoom-slider0 input[type="range"] {
   width: 100%;
   height: 6px;
   -webkit-appearance: none;
@@ -5372,7 +5424,7 @@ iframe.insecure {
   cursor: pointer;
 }
 
-.video-zoom-slider input[type="range"]::-webkit-slider-thumb {
+.video-zoom-slider0 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
@@ -5380,7 +5432,68 @@ iframe.insecure {
   border-radius: 50%;
 }
 
-.video-zoom-slider input[type="range"]::-moz-range-thumb {
+.video-zoom-slider0 input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.video-ptz-controls {
+  position: absolute;
+  bottom: 45px;
+  left: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  padding: 10px 15px;
+  opacity: 0.3;
+  transition: opacity 0.3s;
+  z-index: 5;
+}
+
+.video-ptz-controls:hover,
+.video-container:hover .video-ptz-controls {
+  opacity: 1;
+}
+
+.video-zoom-slider,
+.video-pan-slider,
+.video-tilt-slider {
+  display: flex;
+  align-items: center;
+  margin: 5px 0;
+  width: 100%;
+}
+
+.video-ptz-controls label {
+  color: white;
+  font-size: 12px;
+  margin-right: 10px;
+  min-width: 40px;
+}
+
+.video-ptz-controls input[type="range"] {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.video-ptz-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+}
+
+.video-ptz-controls input[type="range"]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   background: white;

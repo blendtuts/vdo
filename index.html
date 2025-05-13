@@ -42,7 +42,7 @@
 		
 		<meta name="msapplication-TileColor" content="#da532c" />
 		<meta name="theme-color" content="#0f131d" />
-		<link rel="stylesheet" href="./main.css?ver=404" />
+		<link rel="stylesheet" href="./main.css?ver=406" />
 		<script type="text/javascript" crossorigin="anonymous" src="./thirdparty/adapter.js"></script>
 		
 		<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon" />
@@ -82,7 +82,7 @@
 		</span>
 		<script type="text/javascript" crossorigin="anonymous"  src="./thirdparty/CodecsHandler.js?ver=28"></script>
 		<script type="text/javascript" crossorigin="anonymous" src="./thirdparty/aes.js"></script>
-		<script type="text/javascript" crossorigin="anonymous" src="./webrtc.js?ver=849"></script>
+		<script type="text/javascript" crossorigin="anonymous" src="./webrtc.js?ver=854"></script>
 		<input id="zoomSlider" type="range" style="display: none;" />
 		<span id="electronDragZone" style="display:none;pointer-events: none; z-index:-10; position:absolute;top:0;left:0;width:100%;height:2%;min-height:20px;"></span>
 		<div id="header">
@@ -1101,7 +1101,7 @@
 								<span style="color:#daad09;">Welcome to VDO Ninja! We've rebranded!  Nothing else is changing and we're staying 100% free.</span>
 							</h4>
 							<br />
-							🐈 Minor update on March 1st. You can also still access the previous version, which <a href="https://vdo.ninja/v26/">is hosted here</a>. Development <a target="_blank" title="Open a page with recent VDO.Ninja development and feature updates" href="https://updates.vdo.ninja/">updates are here.</a>
+							<span title="Made in Canada">🍁</span> Minor update on March 1st. You can also still access the previous version, which <a href="https://vdo.ninja/v26/">is hosted here</a>. Development <a target="_blank" title="Open a page with recent VDO.Ninja development and feature updates" href="https://updates.vdo.ninja/">updates are here.</a>
 							<br />
 							<br />
 							<h3>
@@ -1116,7 +1116,7 @@
 				<input type="submit" />
 			</form>
 			<div id="credits" class="credits" aria-hidden="true">
-				<a href='https://github.com/steveseguin/vdoninja' aria-hidden="true">VDO.Ninja, by Steve Seguin</a> 
+				<a href='https://github.com/steveseguin/vdoninja' aria-hidden="true" title="Made in Canada">VDO.Ninja, by Steve Seguin</a> 
 			</div>
 		</div>
 		<div id="directorlayout" class="hidden directorsgrid">
@@ -1534,7 +1534,7 @@
 					</div>
 				</div>
 				<a href="https://params.vdo.ninja" style="color:#888;" target="_blank" >
-					<div style="display: block;float:right;font-size:70%;z-index:30;bottom:6px;right:10px;position:relative;color:#888;" ><span data-translate="learn-more-about-params">Learn more about URL parameters at </span><span style="text-decoration: underline;">params.vdo.ninja</span>
+					<div style="display: block;float:right;font-size:70%;z-index:30;bottom:6px;right:10px;position:relative;color:#d8d8d8;" ><span data-translate="learn-more-about-params">Learn more about URL parameters at </span><span style="text-decoration: underline;">params.vdo.ninja</span>
 					</div>
 				</a>
 			</div>
@@ -1769,7 +1769,7 @@
 							<i class="las la-compact-disc"></i>
 							<span data-translate="record-remote"> Record Remote</span>
 						</button>
-						<button data-action-type="recorder-google-drive-remote" title="The Remote Guest will record their local stream and upload it to your Google Drive. *experimental*" onclick="requestGoogleDriveRecord(this)">
+						<button data-action-type="recorder-google-drive-remote" title="The Remote Guest will record their local stream and upload it to your Google Drive. *experimental*" onclick="requestGoogleDriveRecord(this, null, null, event)">
 							<i class="las la-compact-disc"></i>
 							<span data-translate="google-drive-record"> Google Drive</span>
 						</button>
@@ -2745,6 +2745,7 @@
 		</div>
 		<div id="muteStateTemplate" class="hidden video-mute-state">
 			<i class="las la-microphone-slash"></i>
+			<i class="las la-microphone"></i>
 		</div>
 		<div id="videoMuteStateTemplate" class="hidden video-mute-state">
 			<i class="las la-video-slash"></i>
@@ -2789,23 +2790,23 @@
 			<b data-translate='available-languages'>Available Languages:</b>
 			<br />
 			<ul id="languagesList" style="list-style-type: none; margin: 0;">
-				<li><a onclick="changeLg('en');toggle(document.getElementById('languages'));" style="cursor: pointer;">English</a></li>
-				<li><a onclick="changeLg('de');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Berlin">German</a></li>
-				<li><a onclick="changeLg('fr');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Paris">French</a></li>
-				<li><a onclick="changeLg('it');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Rome">Italian</a></li>
-				<li><a onclick="changeLg('es');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Madrid">Spanish</a></li>
-				<li><a onclick="changeLg('pt');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Lisbon;">Portuguese (Europe)</a></li>
-				<li><a onclick="changeLg('pt-br');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="America/Araguaina">Portuguese (Brazil)</a></li>
-				<li><a onclick="changeLg('nl');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Amsterdam">Dutch</a></li>
-				<li><a onclick="changeLg('tr');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Istanbul">Turkish</a></li>
-				<li><a onclick="changeLg('ja');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Asia/Tokyo">Japanese</a></li>
-				<li><a onclick="changeLg('ar', true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-rtl="true" data-tz="Asia/Arabic">Arabic</a></li>
-				<li><a onclick="changeLg('cn');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Asia/China">Chinese (中文)</a></li>
-				<li><a onclick="changeLg('cs');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Prague">Czech</a></li>
-				<li><a onclick="changeLg('ru');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Moscow">Russian</a></li>
-				<li><a onclick="changeLg('uk');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Ukraine">Ukrainian</a></li>
-				<li><a onclick="changeLg('eu');toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Euskara">Basque</a></li>
-				<li><a onclick="changeLg('pig');toggle(document.getElementById('languages'));" style="cursor: pointer;">Pig Latin</a></li>
+				<li><a onclick="changeLg('en',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;">English</a></li>
+				<li><a onclick="changeLg('de',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Berlin">German</a></li>
+				<li><a onclick="changeLg('fr',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Paris">French</a></li>
+				<li><a onclick="changeLg('it',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Rome">Italian</a></li>
+				<li><a onclick="changeLg('es',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Madrid">Spanish</a></li>
+				<li><a onclick="changeLg('pt',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Lisbon;">Portuguese (Europe)</a></li>
+				<li><a onclick="changeLg('pt-br',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="America/Araguaina">Portuguese (Brazil)</a></li>
+				<li><a onclick="changeLg('nl',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Amsterdam">Dutch</a></li>
+				<li><a onclick="changeLg('tr',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Istanbul">Turkish</a></li>
+				<li><a onclick="changeLg('ja',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Asia/Tokyo">Japanese</a></li>
+				<li><a onclick="changeLg('ar', true, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-rtl="true" data-tz="Asia/Arabic">Arabic</a></li>
+				<li><a onclick="changeLg('cn',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Asia/China">Chinese (中文)</a></li>
+				<li><a onclick="changeLg('cs',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Prague">Czech</a></li>
+				<li><a onclick="changeLg('ru',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Moscow">Russian</a></li>
+				<li><a onclick="changeLg('uk',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Ukraine">Ukrainian</a></li>
+				<li><a onclick="changeLg('eu',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;" data-tz="Europe/Euskara">Basque</a></li>
+				<li><a onclick="changeLg('pig',false, true);toggle(document.getElementById('languages'));" style="cursor: pointer;">Pig Latin</a></li>
 			</ul>
 			<br style="line-height: 0.3;" />
 			<i class="las la-exclamation-circle"></i><a href="https://github.com/steveseguin/vdoninja/tree/master/translations" target="_blank" rel="noopener noreferrer" data-translate='add-more-here'>Add More Here!</a>
@@ -2823,7 +2824,7 @@
 			</u>
 		</div>
 		<span class="hidden" id="hangupTemplate">
-			<span id="hangupContainer">👋<br><button onClick='parent.location.reload();' title="Reload the page" data-translate="reload-page">Refresh</button></span>
+			<span id="hangupContainer">👋<br><button onClick="(function(){try{parent.location.reload();}catch(e){window.location.reload();}})();" title="Reload the page" data-translate="reload-page">Refresh</button></span>
 		</span>
 		<div id="meshcastMenu" class="hidden">
 			Meshcast publishing region: <select name="edgelist" id="edgelist" onchange="selectMeshcast(this);" title="Select a location that is closest to both you and your audience."></select>
@@ -2858,7 +2859,7 @@
 			// if (!window.location.search){document.body.innerHTML = "";} // uncomment this line, if you wish to try it.
 			
 			var session = WebRTC.Media; // session is a required global variable if configuring manually. Run before loading main.js but after webrtc.js.
-			session.version = "27.4"; // updated: default 1080p now + tweaked outbound bandwidth logic
+			session.version = "27.6"; // updated: default 1080p now + tweaked outbound bandwidth logic
 			session.streamID = session.generateStreamID(); // randomly generates a streamID for this session. You can set your own programmatically if needed
 			
 			session.defaultPassword = "someEncryptionKey123"; // Change this password if self-deploying for added security/privacy
@@ -2981,8 +2982,8 @@
 			// if ("42" != prompt("enter the password")){document.body.innerHTML = "";window.location.href = "";} // if you want a low-effort password for the site
 			
 		</script>
-		<script type="text/javascript" crossorigin="anonymous" id="lib-js" src="./lib.js?ver=1303"></script>
-		<script type="text/javascript" crossorigin="anonymous" id="main-js" src="./main.js?ver=959"></script>
+		<script type="text/javascript" crossorigin="anonymous" id="lib-js" src="./lib.js?ver=1310"></script>
+		<script type="text/javascript" crossorigin="anonymous" id="main-js" src="./main.js?ver=970"></script>
 		<!-- <script type="text/javascript" crossorigin="anonymous"  src="./trace.js?ver=1"></script>!-->
 	</body>
 </html>
