@@ -8,7 +8,7 @@ VDO.Ninja Whiteboard is a powerful, browser-based drawing tool that integrates w
 
 ### **You can access it here:**[ **https://vdo.ninja/whiteboard**](https://vdo.ninja/whiteboard)
 
-<figure><img src="../.gitbook/assets/image (262).png" alt=""><figcaption><p>Exampe Masterpiece</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (262).png" alt=""><figcaption><p>Example Masterpiece</p></figcaption></figure>
 
 ### Key Features
 
