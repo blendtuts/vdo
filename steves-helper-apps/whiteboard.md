@@ -6,6 +6,8 @@
 
 VDO.Ninja Whiteboard is a powerful, browser-based drawing tool that integrates with VDO.Ninja's peer-to-peer streaming technology. It allows you to create and share live drawings, diagrams, or annotations with viewers in real-time without requiring any downloads, installations, or accounts.
 
+### **You can access it here:**[ **https://vdo.ninja/whiteboard**](https://vdo.ninja/whiteboard)
+
 <figure><img src="../.gitbook/assets/image (262).png" alt=""><figcaption><p>Exampe Masterpiece</p></figcaption></figure>
 
 ### Key Features
