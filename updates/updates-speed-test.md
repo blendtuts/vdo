@@ -1,6 +1,6 @@
 # Updates - Speed Test
 
-[speed-test.md](../steves-helper-apps/speed-test.md "mention")
+[speed-and-quality-tests.md](../steves-helper-apps/speed-and-quality-tests.md "mention")
 
 #### October 29
 

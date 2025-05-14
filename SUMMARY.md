@@ -26,7 +26,7 @@
   * [Mixer App](steves-helper-apps/mixer-app.md)
   * [WHIP and WHEP tooling](steves-helper-apps/whip-and-whep-tooling.md)
   * [Versus.cam](steves-helper-apps/versus.cam.md)
-  * [Speed Test](steves-helper-apps/speed-test.md)
+  * [Speed and Quality Tests](steves-helper-apps/speed-and-quality-tests.md)
   * [Comms](steves-helper-apps/comms.md)
   * [Teleprompter Tool](steves-helper-apps/teleprompter-tool.md)
   * [LUT maker for color grading](steves-helper-apps/lut-maker-for-color-grading.md)
