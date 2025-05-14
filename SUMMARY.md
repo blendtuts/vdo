@@ -71,6 +71,7 @@
   * [How to publish to Facebook Live](guides/publish-to-facebook-live.md)
   * [How to embed VDO.Ninja into a site with iFrames](guides/iframe-api-documentation.md)
     * [Detecting User Joins / Disconnects](guides/iframe-api-documentation/detecting-user-joins-disconnects.md)
+    * [Create custom drawing app](guides/iframe-api-documentation/create-custom-drawing-app.md)
   * [How to use the green screen just locally](guides/use-the-green-screen-just-locally.md)
   * [How to connect a GoPro to VDO.Ninja](guides/connect-a-gopro-to-vdo.ninja.md)
   * [How to install RaspNinja on Jetson](guides/installing-raspninja-on-jetson.md)
