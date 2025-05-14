@@ -36,6 +36,7 @@
   * [Invite Link Generators](steves-helper-apps/invite-link-generators.md)
   * [Community contributed tools](steves-helper-apps/community-contributed-tools.md)
   * [Mic test](https://vdo.ninja/mictest)
+  * [Whiteboard](steves-helper-apps/whiteboard.md)
 * [Guides](guides/README.md)
   * [Cheat Sheets](guides/cheat-sheets.md)
   * [Common questions re: Rooms](help/how-does-group-chat-work.md)
