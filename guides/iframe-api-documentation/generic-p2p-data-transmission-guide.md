@@ -43,11 +43,15 @@ var iframe = document.createElement("iframe");
 iframe.allow = "camera;microphone;fullscreen;display-capture;autoplay;";
 
 // Set the source URL (your VDO.Ninja room)
-iframe.src = "https://vdo.ninja/?room=your-room-name&cleanoutput";
+iframe.src = "https://vdo.ninja/?room=your-room-name&cleanish&dataonly";
 
 // Add the iframe to your page
 document.getElementById("container").appendChild(iframe);
 ```
+
+{% hint style="info" %}
+`&dataonly` is offered as a simple way to configure VDO.Ninja for data-only applications with no camera/microphone controls. `&cleanish` lets you hide GUI and menus, while still having access to stats and right-click content menus; helpful for debugging and development.
+{% endhint %}
 
 ### Setting Up Event Listeners
 
