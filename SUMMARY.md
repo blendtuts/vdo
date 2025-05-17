@@ -413,6 +413,7 @@
     * [\&pip](advanced-settings/design-parameters/and-pip.md)
     * [\&pipall](advanced-settings/design-parameters/and-pipall-alpha.md)
     * [\&pipme](advanced-settings/design-parameters/and-pipme-alpha.md)
+    * [\&rows](advanced-settings/design-parameters/and-rows.md)
   * [Director Parameters](advanced-settings/director-parameters/README.md)
     * [\&director](viewers-settings/director.md)
     * [\&codirector](director-settings/codirector.md)
