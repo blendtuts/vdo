@@ -101,16 +101,26 @@ Requires Chrome v90 or newer on both publisher and viewer to work. The Electron 
 
 Experimental at this point in time and may not perform well, but if very bandwidth constrained, it is a worthwhile option.
 
-### H265
+### H265 / HEVC
 
-#### H265 / HEVC <a href="#h265-hevc-av1" id="h265-hevc-av1"></a>
+H265, also known as HEVC or H.265, is a fairly modern and yet common video codec, capable of high-efficiency video compression. It's non-free however, so its availability in browsers has historically been limited.
 
-H265, also known as HEVC or H.265, is a fairly modern and yet common video codec, being cable capable of high efficiency video compression. It's non-free however, so its availability in browsers is rather limited. Safari-based browsers and the Thorium browser should support it however natively.\
-\
-If running Chrome on PC, you try enabling H265 support manually however by using the following command line to start your Chrome instance:\
-\
-&#x20;`chrome.exe --enable-features=PlatformHEVCEncoderSupport,WebRtcAllowH265Receive,WebRtcAllowH265Send --force-fieldtrials=WebRTC-Video-H26xPacketBuffer/Enabled`\
-\
+**Good news!** Starting from Chrome version 136 and above, H.265/HEVC is now supported natively for WebRTC without requiring any special configuration. This native support works on Windows and macOS out of the box, while Linux users will need VAAPI support.
+
+**Browser Support:**
+
+* **Chrome/Chromium v136+**: Native support (no configuration needed)
+* **Safari-based browsers**: Native support
+* **Thorium browser**: Native support
+* **Chrome/Chromium v135 and below**: Manual enablement required (see below)
+* **Firefox and other browsers**: Generally not supported
+
+**For older Chrome versions (v135 and below)**, you can try enabling H265 support manually by using the following command line to start your Chrome instance:
+
+```
+chrome.exe --enable-features=PlatformHEVCEncoderSupport,WebRtcAllowH265Receive,WebRtcAllowH265Send --force-fieldtrials=WebRTC-Video-H26xPacketBuffer/Enabled
+```
+
 ![](<../../.gitbook/assets/image (1) (1) (1) (1).png>)
 
 For more help with enabling H265 on your browser, or to see if your browser currently supports it, please see: [https://vdo.ninja/h265](https://vdo.ninja/h265)
