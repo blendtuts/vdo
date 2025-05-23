@@ -131,6 +131,11 @@ async function main() {
 		session.hidehome = true;
 	}
 	hideHomeCheck();
+	
+	if (window.obsstudio || isMELD) {
+		session.studioSoftware = true;
+		getById("saveRoom").style.display = "none"; // don't let the user save the room if in OBS
+	}
 
 	if (urlParams.has("previewmode")) {
 		session.switchMode = true;
@@ -208,7 +213,7 @@ async function main() {
 		session.showControls = false; // show the video control bar
 	}
 
-	if (!isIFrame && !window.obsstudio) {
+	if (!isIFrame && !session.studioSoftware) {
 		if (ChromiumVersion === 65) {
 			// pass, since probably manycam and that's bugged
 		} else if (getStorage("redirect") == "yes") {
@@ -282,7 +287,7 @@ async function main() {
 			return window.electronApi.prompt({ title, val });
 		  };
 		} else {
-		  console.warn("electronApi prompt function not available");
+		  warnlog("electronApi prompt function not available");
 		}
 	  } catch (e) {
 		console.error("Error setting up Electron prompt:", e);
@@ -1929,6 +1934,7 @@ async function main() {
 			// &timeouts=,,,10 (updates only 4th value)
 			// &timeouts= (no changes)
 			// &timeouts=1000,abc,3000 (updates first and third, ignores invalid value)
+			// Guide here: https://gist.github.com/steveseguin/f754a3c9b97a9a091226c8dbc5dc654a
 		  urlParams.get('timeouts').split(',').forEach((val, index) => {
 			if (val !== '') {
 			  const parsedVal = parseInt(val, 10);
@@ -2053,7 +2059,7 @@ async function main() {
 				if (["invite.cam","invitecamera.com"].includes(getParentHostname())){
 					session.iFramesAllowed = false;
 					console.warn("For security and privacy purposes, please note that you will not be allowed to use CSS injection together with IFRAMES.");
-				} else if ((window !== window.top) || window.obsstudio) {
+				} else if ((window !== window.top) || session.studioSoftware) {
 					// allowed
 				} else {
 					console.warn("For security and privacy purposes, please note that you will not be allowed to use CSS injection together with IFRAMES.");
@@ -2094,7 +2100,7 @@ async function main() {
 					if (["invite.cam","invitecamera.com"].includes(getParentHostname())){
 						session.iFramesAllowed = false;
 						console.warn("For security and privacy purposes, please note that you will not be allowed to use CSS injection together with IFRAMES.");
-					} else if ((window.location.hostname === cssDomain) || window.location.hostname.endsWith("."+cssDomain) || (window !== window.top) || window.obsstudio) {
+					} else if ((window.location.hostname === cssDomain) || window.location.hostname.endsWith("."+cssDomain) || (window !== window.top) || session.studioSoftware) {
 						if (window.location.hostname !== cssDomain){
 							console.warn("Third-party CSS has been injected into the site. Security cannot be ensured.");
 						}
@@ -2127,7 +2133,7 @@ async function main() {
 					if (["invite.cam","invitecamera.com"].includes(getParentHostname())){
 						console.warn("For security and privacy purposes, please note that you will not be allowed to use CSS injection together with IFRAMES.");
 						session.iFramesAllowed = false;
-					} else if ((window !== window.top) || window.obsstudio) {
+					} else if ((window !== window.top) || session.studioSoftware) {
 						// allowed
 					} else {
 						console.warn("For security and privacy purposes, please note that you will not be allowed to use CSS injection together with IFRAMES.");
@@ -2233,7 +2239,7 @@ async function main() {
 					if (!session.cleanOutput){
 						allow = await confirmAlt("This link wishes to inject third-party Javascript ⚠️\n\nIf you trust the link, click OK. Otherwise, click Cancel.", true);
 					}
-				} else if ((window.location.hostname === jsDomain) || window.location.hostname.endsWith("."+jsDomain) || (window !== window.top) || window.obsstudio) {
+				} else if ((window.location.hostname === jsDomain) || window.location.hostname.endsWith("."+jsDomain) || (window !== window.top) || session.studioSoftware) {
 					// same domains, iframes, or OBS can run javascript.
 					allow = true;
 					if (window.location.hostname !== jsDomain){
@@ -2278,7 +2284,7 @@ async function main() {
 					if (!session.cleanOutput){
 						allow = await confirmAlt("This link wishes to inject third-party Javascript ⚠️\n\nIf you trust the link, click OK. Otherwise, click Cancel.", true);
 					}
-				} else if ((window !== window.top) || window.obsstudio) {
+				} else if ((window !== window.top) || session.studioSoftware) {
 					// iframes or OBS can run javascript.
 					allow = true;
 					console.warn("Third-party Javascript has been injected into the code. Security cannot be ensured.");
@@ -2979,7 +2985,7 @@ async function main() {
 				session.view += ","+urlParams.get('include');
 			}
 		} */
-		if (session.scene !== false && session.style === false && window.obsstudio) {
+		if (session.scene !== false && session.style === false && session.studioSoftware) {
 			session.style = 1;
 		}
 	}
@@ -3392,6 +3398,15 @@ async function main() {
 		} catch (e) {
 			errorlog(e);
 		}
+	} else if (session.studioSoftware){
+		session.disableWebAudio = true; // default true; might be useful to disable on slow or old computers?
+		session.audioMeterGuest = false;
+
+		getById("miniTaskBar").classList.add("hidden");
+
+		if (session.audioEffects === null) {
+			session.audioEffects = false;
+		}
 	}
 
 	if (urlParams.has("chroma")) {
@@ -3508,7 +3523,7 @@ async function main() {
 			document.body.classList.remove('darktheme');
 			document.body.classList.add('whitetheme');
 			session.darkmode = false;
-		} else if (window.obsstudio) {
+		} else if (session.studioSoftware) {
 			session.darkmode = false; // prevent OBS from defaulting to dark mode, avoiding possible overlooked bugs.
 		} else if (session.darkmode === null) {
 			session.darkmode = getComputedStyle(document.querySelector(":root")).getPropertyValue("--color-mode").trim();
@@ -3815,11 +3830,16 @@ async function main() {
 	}
 
 	if (urlParams.has("slot")) {
-		session.slot = parseInt(urlParams.get("slot")) || 0;
+		session.slot = parseInt(urlParams.get("slot")) || 0; // specifiy slot on guest side, if director allows it
 	}
 
 	if (urlParams.has("slots")) {
-		session.slots = parseInt(urlParams.get("slots")) || 4;
+		session.slots = parseInt(urlParams.get("slots")) || 4; // first N slots can be filled
+	} else if (urlParams.has('slotslist')) { // select which slots you want to be processed
+		session.slotsList = urlParams.get('slotslist').split(',').map(slot => parseInt(slot.trim())).filter(slot => !isNaN(slot));
+		if (!session.slotsList.length){
+			session.slotsList = false;
+		}
 	}
 
 	if (urlParams.has("alpha")) {
@@ -4541,7 +4561,7 @@ async function main() {
 		}
 	}
 
-	if (window.obsstudio || navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
+	if (session.studioSoftware || navigator.userAgent.toLowerCase().indexOf(" electron/") > -1) {
 		session.fullscreen = true;
 	} else if (urlParams.has("fullscreen")) {
 		session.fullscreen = true;
@@ -4620,7 +4640,7 @@ async function main() {
 			getById("header").classList.remove("hidden");
 			getById("head2").classList.remove("hidden");
 		},100);
-	} else if (window.obsstudio) {
+	} else if (session.studioSoftware) {
 		getById("header").style.display = "none";
 		getById("header").style.opacity = 0;
 	}
@@ -5519,7 +5539,7 @@ async function main() {
 
 			if (!session.cleanOutput) {
 				try {
-					if (window.obsstudio) {
+					if (session.studioSoftware) {
 						getById("unexpectedPushLink").classList.remove("hidden");
 					}
 				} catch (e) {}
@@ -5800,10 +5820,7 @@ async function main() {
 
 	//if (!session.director && ((ChromiumVersion == 86) || (ChromiumVersion == 77) || (ChromiumVersion == 62) || (ChromiumVersion == 51)) && (((session.permaid===false) && session.view) || (session.scene!==false))){
 	//	session.studioSoftware = true; // vmix
-	if (window.obsstudio) {
-		session.studioSoftware = true;
-		getById("saveRoom").style.display = "none"; // don't let the user save the room if in OBS
-	}
+
 	if (session.cleanViewer) {
 		if (((session.view!==false) || session.whepInput || session.whipView) && !session.director && session.permaid === false) {
 			session.cleanOutput = true;
@@ -6153,11 +6170,11 @@ async function main() {
 				//	getById("head3").classList.remove('hidden');
 				//	getById("head3a").classList.remove('hidden');
 			}
-		} else if (window.obsstudio && !session.webcamonly && session.permaid === false && session.director === false && ((session.view!==false) || session.whepInput || session.whipView) && session.roomid.length > 0) {
+		} else if (session.studioSoftware && !session.webcamonly && session.permaid === false && session.director === false && ((session.view!==false) || session.whepInput || session.whipView) && session.roomid.length > 0) {
 			// we already know roomid !== false
 			updateURL("scene", true, false); // we also know it's not a scene, but we will assume it is in this specific case.
 			session.scene = 0;
-		} else if (window.obsstudio && !session.webcamonly && !session.cleanOutput && (session.permaid === false) && (session.director === false) && (session.view===false) && !session.whepInput && !session.whipView && (session.roomid.length > 0)) {
+		} else if (session.studioSoftware && !session.webcamonly && !session.cleanOutput && (session.permaid === false) && (session.director === false) && (session.view===false) && !session.whepInput && !session.whipView && (session.roomid.length > 0)) {
 			try {
 					getById("unexpectedPushLink").classList.remove("hidden");
 			} catch (e) {}
@@ -6217,7 +6234,7 @@ async function main() {
 		//if (!session.activeSpeaker){
 		session.audioMeterGuest = false;
 		//}
-		if (session.style === false && window.obsstudio) {
+		if (session.style === false && session.studioSoftware) {
 			session.style = 1;
 		}
 		if (session.audioEffects === null) {
@@ -7443,10 +7460,10 @@ async function main() {
 				session.hangup();
 			}
 		}
-		if ("hangup" in e.data) {
+		//if ("hangup" in e.data) {
 			// disconnect and hangup all inbound streams.
-			session.hangup();
-		}
+		//	session.hangup();
+		//}
 
 		if ("style" in e.data) {
 			// insert a custom style sheet

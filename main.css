@@ -50,7 +50,7 @@
 	--a-lighter-focus: #8acee4;
 	--a-lighter-active: #89d5ee;
 
-	--a-link:  #144267;
+	--a-link: #144267;
 	--a-visited: #144267;
 	--a-hover: #38668c;
 	--a-focus: #38668c;
@@ -138,12 +138,12 @@ table {
 	position: absolute;
 	top: 0;
 	left: 0;
-	width:100%;
-	height:100%;
+	width: 100%;
+	height: 100%;
 }
 .buttonContainer {
 	position: absolute;
-	bottom:0;
+	bottom: 0;
 	left:0;
 	margin:5px;
 }
@@ -160,16 +160,16 @@ table {
 }
 
 #bigPlayButton {
-	margin:0 auto;
+	margin: 0 auto;
 	background-color: #0000;
-	cursor:pointer;
+	cursor: pointer;
 	font-family: Cousine, monospace;
 	font-size: 4em;
 	line-height: 1.5em;
 	letter-spacing: 0.0em;
 	text-shadow: 0.05em 0.05em 0px rgba(0,0,0,1);
-	width:100%;
-	height:100vh;
+	width: 100%;
+	height: 100vh;
 	z-index: 1;
 	vertical-align: top;
 	text-align: center;
@@ -222,7 +222,7 @@ select#audioSource {
 	max-height: 80px; /* Initial height */
 	overflow-y: auto; /* Enable scrolling */
 	transition: max-height 0.3s ease; /* Smooth transition for expanding and collapsing */
-	width:100%;
+	width: 100%;
 	margin-top: 7px;
 	padding: 3px 4px;
 	min-height: 24px; 
@@ -570,7 +570,7 @@ button.hint {
 }
 
 #popOutChat{
-	cursor:pointer;
+	cursor: pointer;
 	text-align:right;
 	color:#B3C7F9;
 	margin: 0 5px;
@@ -659,8 +659,8 @@ button.hint {
 	cursor: help;
 	float: right;
 	font-size: 90%;
-	line-height:100%;
-	margin-top:2px;
+	line-height: 100%;
+	margin-top: 2px;
 }
 #head6 {
 	display: inline-block;
@@ -693,7 +693,7 @@ button.hint {
 	vertical-align: top;
 	text-align: right;
 	right:0;
-	bottom:0;
+	bottom: 0;
 	position: fixed;
 	overflow-wrap: anywhere;
 	cursor: pointer;
@@ -704,11 +704,11 @@ button.hint {
 	bottom:unset;
 }
 #overlayClockContainer.vmiddle {
-	bottom:48%;
+	bottom: 48%;
 	top:unset;
 }
 #overlayClockContainer.bottom {
-	bottom:0%;
+	bottom: 0%;
 	top:unset;
 }
 #overlayClockContainer.left {
@@ -731,7 +731,7 @@ button.hint {
 #overlayClock video {
 	width: calc(22vh + 22vw / 2);
 	max-width: 100%;
-	max-height:25%;
+	max-height: 25%;
 }
 #overlayClock:empty{
 	display:none;
@@ -749,7 +749,7 @@ button.hint {
 	text-align: right;
 	position: fixed;
 	right:0;
-	bottom:0;
+	bottom: 0;
 	overflow-wrap: anywhere;
 	cursor: pointer;
 	user-select: none;
@@ -759,11 +759,11 @@ button.hint {
 	bottom:unset;
 }
 #overlayClockContainer2.vmiddle {
-	bottom:48%;
+	bottom: 48%;
 	top:unset;
 }
 #overlayClockContainer2.bottom {
-	bottom:0%;
+	bottom: 0%;
 	top:unset;
 }
 #overlayClockContainer2.left {
@@ -787,7 +787,7 @@ button.hint {
 	display:none;
 }
 #stickyMsgs{
-	margin:0 auto;
+	margin: 0 auto;
 	background-color: #0000;
 	color: white;
 	font-family: Cousine, monospace;
@@ -795,7 +795,7 @@ button.hint {
 	line-height: 8vh;
 	letter-spacing: 0.0em;
 	text-shadow: 0.05em 0.05em 0px rgba(0,0,0,1);
-	width:100%;
+	width: 100%;
 	z-index: 7;
 	vertical-align: top;
 	text-align: center;
@@ -806,11 +806,11 @@ button.hint {
 .avatarSelection{
 	vertical-align: top;
 	margin: 10px 0;
-	width:130px;
+	width: 130px;
 	display:inline-block;
-	margin:0 1px;
+	margin: 0 1px;
 	text-align: center;
-	cursor:pointer;
+	cursor: pointer;
 }
 .overlayCloseBtn{
     padding: 0;
@@ -824,7 +824,7 @@ button.hint {
 }
 
 #overlayMsgs{
-	margin:0 auto;
+	margin: 0 auto;
 	background-color: #0000;
 	color: white;
 	font-family: Cousine, monospace;
@@ -832,8 +832,8 @@ button.hint {
 	line-height: 8vh;
 	letter-spacing: 0.0em;
 	text-shadow: 0.05em 0.05em 0px rgba(0,0,0,1);
-	width:100%;
-	height:100vh;
+	width: 100%;
+	height: 100vh;
 	z-index: 7;
 	vertical-align: top;
 	text-align: center;
@@ -847,7 +847,7 @@ button.hint {
 	padding: 2px;
 	margin: 0.5vh;
 	text-align: center;
-	width:100%;
+	width: 100%;
 	pointer-events: none
 }
 
@@ -995,9 +995,9 @@ body.darktheme .credits>a:visited {
 	background: #BF3F3F !important;
 }
 #mainmenu.row {
-	
 	text-align: center;
-	margin-top: 10px;
+	margin-top: 20px;
+	padding: 0 10px;
 }
 #mainmenu.row:after {
 	content: "";
@@ -1400,7 +1400,7 @@ button.glyphicon-button.active.focus {
 	-webkit-tap-highlight-color: rgba(255, 255, 255, 0) !important;
 	-webkit-tap-highlight-color: transparent !important;
 	outline: 0px !important;
-	height:100%;
+	height: 100%;
 	animation: fadeIn 0.2s; 
 	background-size: cover;
 	background-image: var(--background-main-image);
@@ -1517,7 +1517,7 @@ button.btnArmTransferRoom.selected{
 }
 
 #container.vidcon {
-	height:100%;
+	height: 100%;
 }
 
 .nocontrolbar #container.vidcon {
@@ -1627,7 +1627,7 @@ button.btnArmTransferRoom.selected{
 }
 
 .la-sliders-h {
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .icn-spinner {
@@ -1694,7 +1694,7 @@ body {
 	border: 0;
 	margin: 0;
 	opacity: 1;
-	transition: opacity .1s linear;
+	transition: opacity 0.1s linear;
 	scrollbar-color:#666 #201c29;
 	display:flex;
 	flex-direction: column;
@@ -1755,12 +1755,19 @@ body.darktheme{
 	box-shadow: 0 0 31px 0px #244e1c44;
 	animation: pulsate 2s ease-out infinite; 
 }
+#logoname {
+	transition: opacity 0.2s ease-in-out;
+}
+#logoname:hover {
+	opacity: 0.8;
+}
+
 #mainmenu {
-	height:100vh;
+	height: 100vh;
 }
 .mainmenuclass {
 	display: inline-block;
-	width:100%;
+	width: 100%;
 }
 .welcomeOverlay{
 	object-fit: cover;
@@ -1812,14 +1819,14 @@ div[data-action-type='toggle-group'] {
 	box-shadow: 10px 8px 32px -10px #8883;
 }
 .testtonebutton:hover{
-	background-color:#DDD
+	background-color: #DDD;
 }
 .testtonebutton:active{
-	background-color:#AAA
+	background-color: #AAA;
 }
 
 .highlight {
-	background-color:#ddeeff;
+	background-color: #ddeeff;
 }
 
 #effectSelector{
@@ -1935,7 +1942,7 @@ input[type=range]:focus::-ms-fill-upper {
 
 input[type=range].inputConstraint {
 	display:block;
-	width:100%;
+	width: 100%;
 	margin: 5px 0px 10px 0px;
 }
 /* ////// Icon resizing for mobile subControl bar ////// */
@@ -2070,8 +2077,8 @@ div#chatBody a {
 	font-size: 300%;
 }
 .foregroundMedia {
-	width:100%;
-	height:100%;
+	width: 100%;
+	height: 100%;
 	position: relative;
 }
 .section {
@@ -2372,11 +2379,11 @@ div#chatBody a {
 #audioSourceScreenshare {
 	overflow: auto;
 	resize: both;
-	width:100%;
+	width: 100%;
 }
 
 #outputSourceScreenshare {
-	width:100%;
+	width: 100%;
 }
 #outputSource {
 	margin-top: 7px;
@@ -2498,7 +2505,7 @@ label {
 	margin: auto;
 	background-color: #5555;
 	border-radius: 30px;
-	cursor:pointer;
+	cursor: pointer;
 	color: #636363;
 	padding: 3px;
 	width: 100px;
@@ -2525,17 +2532,18 @@ label {
 	height: 200px;
 	text-align: center;
 	font-size: 100%;
-	transition: box-shadow 0.1s ease-in-out;
+	transition: all 0.2s ease-in-out;
 	border-radius: 12px;
+	border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .column:hover {
-	box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .3);
-	transform: translateY(-1px);
+	box-shadow: 0 10px 20px 0 rgba(0, 0, 0, .15);
+	border-color: rgba(0, 0, 0, 0.1);
 }
 
 .column:active {
-	box-shadow: 0 8px 16px 0 rgba(0, 0, 0, .5);
+	box-shadow: 0 5px 10px 0 rgba(0, 0, 0, .2);
 }
 
 .column>h2 {
@@ -2742,7 +2750,6 @@ span[data-action-type="stats-graphs-details-container"]>span{
 	background-repeat: no-repeat;
 	background-size: 90px;
 	transition: background-image 0.3s ease-in-out;
-	-webkit-transition: background-image 0.3s ease-in-out;
 	background-position: 50% 65%;
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='347.184' height='187.007' viewBox='0 0 91.859 49.479' fill='none' stroke='%23000' stroke-width='5' stroke-linejoin='round' xmlns:v='https://vecta.io/nano'%3E%3Cpath d='M3.15 3.15h65.569v43.179H3.15z' stroke-dashoffset='22.7149601' paint-order='markers fill stroke'/%3E%3Cpath d='M68.919 28.837L88.709 44.73V7.148L69.019 22.341z'/%3E%3C/svg%3E");
 }
@@ -2750,7 +2757,6 @@ span[data-action-type="stats-graphs-details-container"]>span{
 	background-repeat: no-repeat;
 	background-size: 90px;
 	transition: background-image 0.3s ease-in-out;
-	-webkit-transition: background-image 0.3s ease-in-out;
 	background-position: 50% 65%;
 }
 #container-4 {
@@ -3020,7 +3026,7 @@ input[type="file"]#fileselector4 + label {
 	box-shadow: 1px 1px 3px rgba(0,0,0,0.75);
 	background-color: #ecfaff;
 	border-radius: 2px;
-	width:100%;
+	width: 100%;
 }
 
 .lowerRaisedHand{
@@ -3284,7 +3290,7 @@ img {
 	padding:2px 5px;
 	color: white;
 	z-index:2;
-	margin:0 auto;
+	margin: 0 auto;
 	background-color: #222D;
 	display: inline-block;
 	opacity: 0.8;
@@ -3921,7 +3927,7 @@ label {
 }
 
 #directorLinksButton{
-	cursor:pointer;
+	cursor: pointer;
 }
 .directorContainer.half {
 	background-color: var(--container-color);
@@ -3985,7 +3991,7 @@ a.task {
 	color: white;
 }
 .shift>i {
-	cursor:pointer;
+	cursor: pointer;
 	width: 10px;
 	margin: 0 auto;
 	left: -1.1px;
@@ -4217,6 +4223,18 @@ div#roomnotes2 {
 .darktheme .controlsGrid .btn-HL-paleblue {
 	background-color: rgb(41 54 72);
 }
+.darktheme .controlsGrid .btn-HL-orange {
+	background-color: rgb(185, 104, 42);
+}
+.darktheme .controlsGrid .btn-HL-purple {
+	background-color: rgb(111, 72, 139);
+}
+.darktheme .controlsGrid .btn-HL-red {
+	background-color: rgb(159, 62, 56);
+}
+.darktheme .controlsGrid .btn-HL-teal {
+	background-color: rgb(54, 140, 140);
+}
 /* Light theme */
 .controlsGrid .btn-HL-yellow {
 	background-color: rgb(255, 229, 127);
@@ -4233,6 +4251,18 @@ div#roomnotes2 {
 .controlsGrid .btn-HL-paleblue {
 	background-color: rgb(170, 204, 248);
 }
+.controlsGrid .btn-HL-orange {
+	background-color: rgb(255, 187, 115);
+}
+.controlsGrid .btn-HL-purple {
+	background-color: rgb(208, 186, 233);
+}
+.controlsGrid .btn-HL-red {
+	background-color: rgb(255, 153, 153);
+}
+.controlsGrid .btn-HL-teal {
+	background-color: rgb(131, 215, 215);
+}
 
 /* Hides buttons that are supposed to be hidden when &novice is added to URL */
 .controlsGrid .advanced.hide {
@@ -4244,7 +4274,7 @@ div#roomnotes2 {
 }
 
 .appmode #head1 input, .appmode #head1a input{
-	width:100%;
+	width: 100%;
 	padding: 10px;
 	margin: 5px;
 	font-size: 125%;
@@ -4635,8 +4665,8 @@ a#reshare {
 .video-meter-2 {
 	padding:0;
 	display:block;
-	width:100%;
-	height:100%;
+	width: 100%;
+	height: 100%;
 	min-width:10px;
 	min-height:10px;
 	top: 0;
@@ -4782,7 +4812,7 @@ a#reshare {
 	box-shadow: inset 0 0 50px #290f07;
 }
 #help_directors_room{
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .iframeblob{
@@ -5533,6 +5563,12 @@ body.darktheme form>label{
 body.darktheme .column>h2{
 	color: #b6b6b6;
 }
+body.darktheme .column {
+	border-color: rgba(255, 255, 255, 0.1);
+}
+body.darktheme .column:hover {
+	border-color: rgba(255, 255, 255, 0.15);
+}
 body.darktheme .directorsgrid .vidcon > .las {
 	background-color: #424242;
 }
@@ -5646,17 +5682,31 @@ button i {
 
 .gobutton {
 	font-size: 110%;
-	padding: 10px;
-	border: 3px solid #ddd;
+	padding: 10px 15px;
+	border: 2px solid #7ea8c8;
 	cursor: pointer;
 	background-color: #99bfd9;
 	color: #000;
 	font-weight: 700;
+	border-radius: 6px;
+	transition: all 0.15s ease-in-out;
+}
+.gobutton:hover {
+	background-color: #8bb2d4;
+	border-color: #6d9bbb;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.gobutton:active {
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 .darktheme .gobutton {
 	background-color: #6B8698;
 	color: #000;
-	border: 3px solid #9B9B9B;
+	border: 2px solid #556a7a;
+}
+.darktheme .gobutton:hover {
+	background-color: #7792a5;
+	border-color: #4a5d6c;
 }
 
 .chevron::before {
@@ -5701,12 +5751,20 @@ select {
 	color: var(--lighttheme-text);
 	border-radius: 4px;
 	font-size: 16px;
-	padding: 1px 2px;
+	padding: 4px 6px;
 	outline: 0;
-	cursor:pointer;
+	cursor: pointer;
 	font-size:95%;
 	text-overflow: ellipsis;
 	max-width: 100%;
+	border: 1px solid var(--lighttheme-6);
+	transition: border-color 0.15s ease-in-out;
+}
+select:hover {
+	border-color: var(--lighttheme-5);
+}
+select:focus {
+	border-color: #99bfd9;
 }
 .darktheme select {
 	background-color: var(--light-grey);
@@ -5737,8 +5795,14 @@ input[type='text'], input[type='password']  {
 	border: 1px solid var(--lighttheme-6);
 	color: var(--lighttheme-text);
 	border-radius: 4px;
-	padding: 4px;
-	height: 25px;
+	padding: 6px 8px;
+	height: 30px;
+	transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+input[type='text']:focus, input[type='password']:focus {
+	outline: none;
+	border-color: #99bfd9;
+	box-shadow: 0 0 0 2px rgba(153, 191, 217, 0.2);
 }
 input::placeholder {
 	color: var(--lighttheme-4) !important;
@@ -5756,7 +5820,7 @@ input[type='checkbox'], input[type='radio'] {
 	padding: 5px;
 	margin: 3px;
 
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .darktheme :not(.promptModalInner) > input {
