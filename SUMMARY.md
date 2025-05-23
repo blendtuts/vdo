@@ -74,6 +74,7 @@
     * [Detecting User Joins / Disconnects](guides/iframe-api-documentation/detecting-user-joins-disconnects.md)
     * [Create custom drawing app](guides/iframe-api-documentation/create-custom-drawing-app.md)
     * [Generic P2P Data Transmission Guide](guides/iframe-api-documentation/generic-p2p-data-transmission-guide.md)
+    * [IFRAME API for Directors](guides/iframe-api-documentation/iframe-api-for-directors.md)
   * [How to use the green screen just locally](guides/use-the-green-screen-just-locally.md)
   * [How to connect a GoPro to VDO.Ninja](guides/connect-a-gopro-to-vdo.ninja.md)
   * [How to install RaspNinja on Jetson](guides/installing-raspninja-on-jetson.md)
