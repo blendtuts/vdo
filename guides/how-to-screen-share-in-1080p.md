@@ -88,7 +88,9 @@ It's free and uses VDO.Ninja, while adding a nifty management dashboard for moni
 
 Using _Entire Screen_ or _Chrome Tab_ capture, instead of _Window_ capture, can increase the frame rate when screen sharing via the Chrome browser:
 
-For some reason, when screen sharing a _Window_ with Chrome, the frame rate is limited to around 42-fps.
+For some reason, when screen sharing a _Window_ with Chrome, the frame rate is limited to around 42-fps.\
+\
+Some users also might find that if they are using FIrefox, they are limited to 30-fps or low-bitrates (around 5-kbps). Please try using Chrome or Edge, or a Chromium-based browser, to see if that improves things.
 
 If you're needing exactly 60-fps, or are still having issues, continue on for more options:
 
