@@ -6605,6 +6605,10 @@ async function main() {
 					ret.innerHTML = e.data.value;
 				} else if (e.data.function === "publishScreen") {
 					ret = publishScreen();
+				} else if (e.data.function === "targetGuest") {
+					ret = targetGuest(data.target, data.action, data.value);
+				} else if (e.data.function === "commands" && data.action && Commands[data.action]) {
+					ret = Commands[data.action](data.value, data.value2 || null); 
 				} else if (e.data.function === "routeMessage") {
 					try {
 						session.ws.onmessage({ data: e.data.value });
