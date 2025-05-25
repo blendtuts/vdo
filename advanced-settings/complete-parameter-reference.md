@@ -2,9 +2,9 @@
 description: A complete list of URL parameters, although not documented
 ---
 
-# Complete List of Parameters in v26
+# Complete List of Parameters
 
-## This is a near-complete list of all the URL parameters within VDO.Ninja, up until v26.2. It does not offer help in explaining what a parameter does, as it's provided purely as a technical reference.
+## This is a near-complete list of all the URL parameters within VDO.Ninja (current as of v27.7). It does not offer help in explaining what a parameter does, as it's provided purely as a technical reference.
 
 This list is not exhaustive, it may have flawed descriptions, and it does not offer links or specifics. Please refer to other support material in the documentation for details on how certain parameters actually work. If a parameter below is not found in the rest of the documentation, please refer to the code directly.\
 \
