@@ -1,6 +1,9 @@
 # Updates - VDO.Ninja
 
-### 👉 Recent updates for VDO.Ninja can be found at [https://updates.vdo.ninja](https://updates.vdo.ninja/)
+### 👉 Recent updates for VDO.Ninja can be found at [https://updates.vdo.ninja](https://updates.vdo.ninja/) or on our Discord server, at [https://discord.vdo.ninja](https://discord.vdo.ninja/).
+
+\
+Some past updates can be viewed below:
 
 #### Audio Enhancements
 
