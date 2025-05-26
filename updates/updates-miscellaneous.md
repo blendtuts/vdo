@@ -91,10 +91,7 @@
   \-- It doesn't seem like Vingester is being actively updated anymore, and there were some breaking changes in [v22](../releases/v22.md) that prevented audio from being captured. I tried, but couldn't reasonably fix the issue from VDO.Ninja's side, so I've forked the Vingester repo and will maintain it as best I can in the meanwhile.\
   \-- You can get the windows-build, with security patches applied and the audio-bug fixed, from here: [https://github.com/steveseguin/vingester/releases/tag/2.8.1](https://github.com/steveseguin/vingester/releases/tag/2.8.1)
 
-#### March 6
-
-* I still have [rtc.ninja](https://rtc.ninja/) up, which is a brand-free version of VDO.Ninja. Based on a user request, I additional just hid some additional buttons on the landing page, such as the "show more" and "create reusable" links, leaving just the basics now.\
-  ![](<../.gitbook/assets/image (22).png>)
+#### &#x20;
 
 ### 2022
 
@@ -111,12 +108,10 @@
 
 #### October 1
 
-*   I'll be having to start white-listing domains that [invite.cam](https://invite.cam/) can use, due to abuse of the service by phishing scammers. This won't impact VDO.Ninja users, but it may impact users who have been using it for non-VDO.Ninja related things.
-
-    \-- vdo.ninja, rtc.ninja, etc, will all still work as normal. I'll be happy to whitelist other domains for community members who reach out to me that need it.\
-    \-- Untrusted domains will still work, but I will be prompting visitors to such links to proceed only if they trust the creator of the link. Nothing threatening, but I hope it's enough to discourage abuse.\
-    \-- I've had to start a blacklist of sites due to reports of phishing abuse that I am accountable for blocking.\
-    ![](<../.gitbook/assets/image (2) (6) (2).png>)
+* I'll be having to start white-listing domains that [invite.cam](https://invite.cam/) can use, due to abuse of the service by phishing scammers. This won't impact VDO.Ninja users, but it may impact users who have been using it for non-VDO.Ninja related things.\
+  \-- Untrusted domains will still work, but I will be prompting visitors to such links to proceed only if they trust the creator of the link. Nothing threatening, but I hope it's enough to discourage abuse.\
+  \-- I've had to start a blacklist of sites due to reports of phishing abuse that I am accountable for blocking.\
+  ![](<../.gitbook/assets/image (2) (6) (2).png>)
 
 #### September 9
 
