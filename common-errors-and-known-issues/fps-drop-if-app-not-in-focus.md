@@ -26,11 +26,19 @@ Some flags you can try disable in Chrome are the following:
 
 `chrome://flags/#enable-throttle-display-none-and-visibility-hidden-cross-origin-iframes`
 
-You can also go into your browser's settings and search for "performance" or go to `chrome://settings/system` , and at the bottom, you might see performance setting options.
+You can also go into your browser's settings and search for "performance" or go to `chrome://settings/system` , and at the bottom, you might see performance setting options. You might also find something at`chrome://settings/performance,` with options related to performance throttling or background tabs, such as "ThrottleJavaScriptt timers in background".\
+\
+To prevent browser auto-suspension and tab discarding, go to `chrome://discards/` and toggle off "Auto Discardable" on VDO.Ninja pages.
+
+<figure><img src="../.gitbook/assets/image (266).png" alt=""><figcaption></figcaption></figure>
 
 Disable the efficiency mode, or customize as desired, and that might help with performance of VDO.Ninja when gaming with the tab in the background.
 
 <figure><img src="../.gitbook/assets/image (2) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
+
+If you need to work in another application, consider using Windows Virtual Desktops (Win + Tab) to keep VDO.Ninja on a separate desktop, or use a window pinning application to keep a small VDO.Ninja window always on top.\
+\
+These visibility strategies help prevent the browser from throttling inactive tabs after periods of inactivity.
 
 ### Electron Capture
 

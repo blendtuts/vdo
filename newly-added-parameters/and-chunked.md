@@ -20,7 +20,7 @@ Example: `&chunked=2000`
 
 ### Chunked video transfer mode
 
-[Version 20](../release-notes/v20.md) introduces the option to enable a chunked-video transfer mode, which is similar to how Twitch or YouTube Live broadcasts videos, but using a different and newer technology. This still uses VDO.Ninja's peer to peer connections to distribute video to viewers, except it does not use WebRTC's video streaming protocols; rather it uses a custom protocol over WebRTC data-channels.
+[Version 20](../releases/v20.md) introduces the option to enable a chunked-video transfer mode, which is similar to how Twitch or YouTube Live broadcasts videos, but using a different and newer technology. This still uses VDO.Ninja's peer to peer connections to distribute video to viewers, except it does not use WebRTC's video streaming protocols; rather it uses a custom protocol over WebRTC data-channels.
 
 The upsides of this mode is that packet loss on a network connection impacts the video stream less, so the quality can be higher. It also makes it easier to record the stream to disk on the viewer's end with no added quality loss and with lower CPU usage. This is because recording a chunked-stream to disk does not require any transcoding on the viewers-end; it just writes the encoded chunks directly to a WebM media container on your disk.
 

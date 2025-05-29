@@ -14,7 +14,7 @@ Sender-Side Option! ([`&push`](push.md))
 
 Adding `&screensharecursor` to a source link attempts to show the mouse cursor on screen shares.
 
-This flag is introduced in [v18.4](../release-notes/v18.md), but it's largely useless currently due to lack of support from most browsers.
+This flag is introduced in [v18.4](../releases/v18/), but it's largely useless currently due to lack of support from most browsers.
 
 The default cursor state in VDO.Ninja is to not show a cursor, but Chrome/Firefox will still add a cursor overlay in regardless.
 

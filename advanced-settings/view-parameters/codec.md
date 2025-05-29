@@ -63,7 +63,7 @@ Firefox on Apple M1 chips may not support H264. OperaGX may also not support H26
 
 #### Customizing H264 further
 
-Starting with VDO.Ninja [v20](../../release-notes/v20.md), you can specify the flavour of H264 being used with the [`&h264profile`](../../newly-added-parameters/and-h264profile.md) flag.
+Starting with VDO.Ninja [v20](../../releases/v20.md), you can specify the flavour of H264 being used with the [`&h264profile`](../../newly-added-parameters/and-h264profile.md) flag.
 
 Using that parameter without specifying a particular H264 profile ID will trigger the software OpenH264 encoder to be used, blocking any hardware H264 encoder. On Windows, OpenH264 may actually use less CPU than the a hardware encoder and may side step video glitching issues.
 

@@ -47,14 +47,10 @@ If the main director does not have `&codirector={somepassword}` in their URL, no
 {% hint style="info" %}
 The co-director mode is still evolving, and certain things like shared-state between all the directors may still be missing.
 
-Starting with [v20](../release-notes/v20.md) of VDO.Ninja, a co-director invite link will be available via the room settings button, along with the option to customize permissions.
+Starting with [v20](../releases/v20.md) of VDO.Ninja, a co-director invite link will be available via the room settings button, along with the option to customize permissions.
 {% endhint %}
 
-<div align="left">
-
-<img src="../.gitbook/assets/image (31) (1).png" alt="The co-directors have a special color assigned to them">
-
-</div>
+<div align="left"><img src="../.gitbook/assets/image (31) (1).png" alt="The co-directors have a special color assigned to them"></div>
 
 ### Optional - Enable via Room Settings
 
