@@ -55,3 +55,17 @@ If screen sharing is getting low frame rates still, you can try using OBS to scr
 OBS with its Virtual Camera can maintain a higher steady frame rate than most browsers can when screen sharing. You can use a virtual audio cable to capture the games/application audio, if needed.
 
 {% embed url="https://docs.vdo.ninja/guides/publish-from-obs-into-vdo.ninja" %}
+
+### Using WHIP from within OBS
+
+An alternative to using the Virtual Camera and browser though is to use a feature in OBS to publish directly to VDO.Ninja.
+
+This is an newer feature it may require a special version of OBS at the moment to work, but WHIP support is now included in OBS v30, but it may be another version or two before OBS supports WHIP properly. \
+\
+If having issues with using OBS WHIP with VDO.Ninja over the Internet, I do have a custom version of OBS that has proper WHIP support [available for Win64 here.](https://backup.vdo.ninja/OBS_VDO_Ninja.zip) \[[fork](https://github.com/steveseguin/obs-studio)]  This version should let you publish WHIP via VDO.Ninja across the Internet, regardless of Firewall. This OBS binary was last built November 2024, but hopefully future releases of OBS make this custom version redundant. :)\
+
+
+Check out a demo YouTube video of how to accomplish publishing WHIP into VDO.Ninja:\
+[Publishing from OBS directly to VDO.Ninja](https://www.youtube.com/watch?v=ynSOE2d4Z9Y)
+
+This mode should give OBS Studio control over frame rate and bitrate, so with a good connection it should be possible to lock in a solid 60-fps.
