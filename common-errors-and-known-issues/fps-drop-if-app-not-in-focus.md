@@ -16,6 +16,44 @@ You can right-click it and disable efficiency mode if it is on.
 
 <figure><img src="../.gitbook/assets/image (5) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
+### GPU Driver Settings
+
+* **NVIDIA Control Panel:**
+  1. Navigate to `Manage 3D Settings` -> `Program Settings`.
+  2. Add or select the browser executable (e.g., `chrome.exe`).
+  3. Set `Power management mode` to `Prefer maximum performance`.
+  4. Ensure `Background Application Max Frame Rate` is `Off` or set to a high value.
+* **AMD Radeon Software:**
+  1. Navigate to `Gaming` -> `Games`.
+  2. Add or select the browser executable.
+  3. Review performance settings: disable `Radeon Chill`, `Enhanced Sync`, or other features that might limit background app performance. Check for specific power-saving options for background applications.
+
+### **Windows System Settings**
+
+* **Graphics Settings:**
+  1. Go to `Settings` -> `System` -> `Display` -> `Graphics settings`.
+  2. Under "Choose an app to set preference", select `Desktop app`.
+  3. Browse to and add the browser executable.
+  4. Click the browser in the list, select `Options`, and set to `High performance`.
+* **Game Mode:**
+  1. Go to `Settings` -> `Gaming` -> `Game Mode`.
+  2. Try toggling Game Mode `Off`. It might be deprioritizing the browser too aggressively.
+* **Power Plan:**
+  1. Open `Control Panel` -> `Hardware and Sound` -> `Power Options`.
+  2. Select `High performance` or `Ultimate Performance`.
+  3. Click `Change plan settings` -> `Change advanced power settings`.
+     * Check `PCI Express` -> `Link State Power Management` and set to `Off`.
+     * Review `Processor power management` settings to ensure no aggressive throttling.
+
+### **Game-Specific Settings**
+
+* **Display Mode:**
+  1. In the game's video/display settings, try using `Borderless Windowed` or `Windowed Fullscreen` mode instead of `Exclusive Fullscreen`.
+* **In-Game FPS Limiters/V-Sync:**
+  1. Experiment with disabling in-game FPS limiters or V-Sync to see if they interact negatively with background capture when the game itself is not the application in focus.
+
+
+
 ### Chromium background tab throttling
 
 Disabling throttling for Chrome can be done in different ways; the methods to control throttling seem to change every couple years however.
@@ -36,8 +74,6 @@ Disable the efficiency mode, or customize as desired, and that might help with p
 
 <figure><img src="../.gitbook/assets/image (2) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
-If you need to work in another application, consider using Windows Virtual Desktops (Win + Tab) to keep VDO.Ninja on a separate desktop, or use a window pinning application to keep a small VDO.Ninja window always on top.\
-\
 These visibility strategies help prevent the browser from throttling inactive tabs after periods of inactivity.
 
 ### Electron Capture
