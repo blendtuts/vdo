@@ -896,7 +896,7 @@ async function main() {
 		joinConference(urlParams.get("justtalk")); // just talk
 
 		if (urlParams.has("hearptsn")) {
-			listenWebsocket(uurlParams.get("justtalk")); // hear ptsn only
+			listenWebsocket(urlParams.get("justtalk")); // hear ptsn only
 		}
 	} else if (urlParams.has("hearptsn") && urlParams.get("hearptsn").length == 6) {
 		listenWebsocket(urlParams.get("hearptsn")); // hear ptsn only

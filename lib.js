@@ -3335,7 +3335,9 @@ function manageSceneState(data, UUID) {
 				controlButton.innerText = "📡 stop streaming";
 				controlButton.classList.remove("hidden");
 			} else if (session.pcs[UUID].obsState.streaming===false) {
-				controlButton.classList.add("hidden");
+				controlButton.classList.remove("hidden");
+				controlButton.dataset.obsAction = "startStreaming";
+				controlButton.innerText = "📡 start streaming";
 			} else {
 				controlButton.dataset.obsAction = "startStreaming";
 				controlButton.innerText = "📡 start streaming";
@@ -3375,7 +3377,9 @@ function manageSceneState(data, UUID) {
 				controlButton.innerText = "📽 stop recording";
 				controlButton.classList.remove("hidden");
 			} else if (session.pcs[UUID].obsState.recording===false) {
-				controlButton.classList.add("hidden");
+				controlButton.classList.remove("hidden");
+				controlButton.dataset.obsAction = "startRecording";
+				controlButton.innerText = "📽 start recording";
 			} else {
 				controlButton.classList.remove("hidden");
 				controlButton.dataset.obsAction = "startRecording";
@@ -3416,7 +3420,9 @@ function manageSceneState(data, UUID) {
 				controlButton.innerText = "💻 stop virtualcam";
 				controlButton.classList.remove("hidden");
 			} else if (session.pcs[UUID].obsState.virtualcam===false) {
-				controlButton.classList.add("hidden");
+				controlButton.classList.remove("hidden");
+				controlButton.dataset.obsAction = "startVirtualcam";
+				controlButton.innerText = "💻 start virtualcam";
 			} else {
 				controlButton.classList.remove("hidden");
 				controlButton.dataset.obsAction = "startVirtualcam";
@@ -6117,7 +6123,7 @@ function updateMixerRun(e = false) {
 									targetBitrate = totalRoomBitrate;
 								}
 								
-								delayedRequestRate(targetBitrate, j); // 1.2mbps is decent, no? in-focus, so higher bitrate
+								delayedRequestRate(targetBitrate, j); // 1.2-Mbps is decent, no? in-focus, so higher bitrate
 							}
 						}
 					} catch (e) {
@@ -6816,6 +6822,15 @@ function updateMixerRun(e = false) {
 	} catch (e) {
 		errorlog(e);
 		sssid = false;
+	}
+
+	// Add screen share status classes to the gridlayout element
+	if (sscount > 0) {
+		playarea.classList.add("has-screenshare");
+		playarea.classList.remove("no-screenshare");
+	} else {
+		playarea.classList.add("no-screenshare");
+		playarea.classList.remove("has-screenshare");
 	}
 
 	var customLayout = false;
@@ -7606,6 +7621,22 @@ function updateMixerRun(e = false) {
 			container.style.position = "absolute";
 			container.style.display = "block";
 			container.classList.add("container_holder_video");
+			
+			// Add screen share class to individual containers
+			var isScreenShare = false;
+			if (vid.dataset.UUID && session.rpcs[vid.dataset.UUID] && session.rpcs[vid.dataset.UUID].screenShareState) {
+				isScreenShare = true;
+			} else if (vid.id === "screensharesource") {
+				isScreenShare = true;
+			}
+			
+			if (isScreenShare) {
+				container.classList.add("is-screenshare");
+				container.classList.remove("is-not-screenshare");
+			} else {
+				container.classList.add("is-not-screenshare");
+				container.classList.remove("is-screenshare");
+			}
 
 			// ANIMATED  - CONTAINER ; width/height/z-index/cover///////////////
 			if (layout) {
@@ -15327,9 +15358,9 @@ function updateLocalStats() {
 	if (Firefox && totalBitrate === 0 && totalBitrate2 === 0) {
 		// does not support the current stats system
 	} else if (totalBitrate > totalBitrate2) {
-		headerStats += ", <span title='Video+Audio upload bitrate'><span " + uploadQuality + ">🔺</span> " + Math.round(totalBitrate / 10.24) / 100 + "<small>-mbps</small></span>";
+		headerStats += ", <span title='Video+Audio upload bitrate'><span " + uploadQuality + ">🔺</span> " + Math.round(totalBitrate / 10.24) / 100 + "<small>-Mbps</small></span>";
 	} else if (totalBitrate2 > 1000) {
-		headerStats += ", <span title='Total upload bitrate' <span " + uploadQuality + ">🔺</span> " + Math.round(totalBitrate2 / 10.24) / 100 + "<small>-mbps</small></span>";
+		headerStats += ", <span title='Total upload bitrate' <span " + uploadQuality + ">🔺</span> " + Math.round(totalBitrate2 / 10.24) / 100 + "<small>-Mbps</small></span>";
 	} else {
 		headerStats += ", <span title='Total upload bitrate' <span " + uploadQuality + ">🔺</span> " + totalBitrate2 + "<small>-kbps</small></span>";
 	}
@@ -49603,7 +49634,7 @@ function getGuestTargetGroup(group, id) {
 	return element;
 }
 
-async function targetGuest(target, action, value = null) {
+async function targetGuest(target, action, value = null, value2 = null) {
 	if (target) {
 		if ((target == (parseInt(target) + "")) && (target < 100)) {
 			target -= 1;
@@ -49850,6 +49881,70 @@ async function targetGuest(target, action, value = null) {
 		} else {
 			return false;
 		}
+	} else if (action == "requestResolution") { // director's preview or scene preview or s/e; not capture resolution
+		var element = getGuestTarget("solo-video", target); // just need to find the guest
+		if (element) {
+			let resolution = value.split("x");
+			if (resolution.length==2){
+				session.requestResolution(element.dataset.UUID, parseInt(resolution[0]), parseInt(resolution[1]));
+				return true;
+			} else {
+				return "Failed. Must be WIDTHxHEIGHT";
+			}
+			
+		}
+		return false;
+	} else if (action == "setWidth") { // actual capture resolution ; director only
+		var element = getGuestTarget("solo-video", target); // just need to find the guest
+		if (element) {
+			requestVideoHack("width", parseInt(value), element.dataset.UUID);
+			return true;
+		}
+		return false;
+	} else if (action == "setHeight") {
+		var element = getGuestTarget("solo-video", target); // just need to find the guest
+		if (element) {
+			requestVideoHack("height", parseInt(value), element.dataset.UUID);
+			return true;
+		}
+		return false;
+	} else if (action == "setAspectRatio") {
+		var element = getGuestTarget("solo-video", target); // just need to find the guest
+		if (element) {
+			requestVideoHack("aspectRatio", parseFloat(value), element.dataset.UUID);
+			return true;
+		}
+		return false;
+	} else if (action == "requestAspectRatio") {
+		var element = getGuestTarget("solo-video", target); // just need to find the guest
+		if (element) {
+			let maxDimension = parseInt(value2) || 1920;
+			let aspectRatio = 16/9; // default
+			
+			// Parse aspect ratio
+			if (value) {
+				if (value.includes(":")) {
+					let parts = value.split(":");
+					aspectRatio = parseFloat(parts[0]) / parseFloat(parts[1]);
+				} else {
+					aspectRatio = parseFloat(value);
+				}
+			}
+			
+			// Calculate dimensions
+			let width, height;
+			if (aspectRatio >= 1) {
+				width = maxDimension;
+				height = Math.round(maxDimension / aspectRatio);
+			} else {
+				height = maxDimension;
+				width = Math.round(maxDimension * aspectRatio);
+			}
+			
+			session.requestResolution(element.dataset.UUID, width, height);
+			return true;
+		}
+		return false;
 	} else if (action == "startRoomTimer") {
 		var element = getGuestTarget("create-timer", target);
 		if (element) {
@@ -50589,6 +50684,75 @@ function setupCommands() {
 		previousDebug = response
 		return {response:response, previous:temp}
 	};
+	
+	commands.width = function (value = null, value2 = null) {
+		// affects LOCAL camera width
+		let width = value ? parseInt(value) : null;
+		if (width) {
+			updateCameraConstraints("width", width, false, false);
+			return true;
+		}
+		return false;
+	};
+
+	commands.height = function (value = null, value2 = null) {
+		// affects LOCAL camera height
+		let height = value ? parseInt(value) : null;
+		if (height) {
+			updateCameraConstraints("height", height, false, false);
+			return true;
+		}
+		return false;
+	};
+
+	commands.aspectRatio = function (value = null, value2 = null) {
+		// affects LOCAL camera aspect ratio
+		if (!value) return false;
+		
+		let aspectRatio;
+		if (typeof value === 'string' && value.includes(":")) {
+			let parts = value.split(":");
+			aspectRatio = parseFloat(parts[0]) / parseFloat(parts[1]);
+		} else {
+			aspectRatio = parseFloat(value);
+		}
+		
+		if (aspectRatio && !isNaN(aspectRatio)) {
+			updateCameraConstraints("aspectRatio", aspectRatio, false, false);
+			return true;
+		}
+		return false;
+	};
+
+	commands.videoConstraint = function (value = null, value2 = null) {
+		// Generic video constraint setter for LOCAL camera
+		// Usage: action=videoConstraint&value=CONSTRAINT_NAME&value2=CONSTRAINT_VALUE
+		if (!value || value2 === null || value2 === undefined) return false;
+		
+		// Parse value2 based on common types
+		let constraintValue = value2;
+		
+		// Handle boolean strings
+		if (value2 === "true") {
+			constraintValue = true;
+		} else if (value2 === "false") {
+			constraintValue = false;
+		} else if (value2 == parseFloat(value2)) {
+			// Handle numeric values
+			constraintValue = parseFloat(value2);
+		}
+		
+		// Special handling for aspectRatio with colon notation
+		if (value === "aspectRatio" && typeof value2 === 'string' && value2.includes(":")) {
+			let parts = value2.split(":");
+			constraintValue = parseFloat(parts[0]) / parseFloat(parts[1]);
+		}
+		
+		// Apply the constraint
+		updateCameraConstraints(value, constraintValue, false, false);
+		return true;
+	};
+
 	return commands;
 }
 var Commands = setupCommands();
@@ -50610,7 +50774,7 @@ async function processMessage(data) {
 		if ("target" in data && data.target !== "null" && data.target !== null) {
 			if ("action" in data) {
 				if ("value" in data) {
-					return await targetGuest(data.target, data.action, data.value);
+					return await targetGuest(data.target, data.action, data.value, data.value2 || null);
 				} else {
 					return await targetGuest(data.target, data.action, null);
 				}
