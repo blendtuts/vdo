@@ -273,41 +273,44 @@
         background-color: transparent;
         margin: 0; 
       }
-/* Reduz o espaçamento geral do item de stream */
-.stream-item {
-    padding: 5px 8px; /* Reduz o preenchimento interno */
-    margin-bottom: 5px; /* Diminui a margem inferior */
-}
-
-/* Diminui o tamanho da fonte do nome do stream e das informações */
-.stream-item div[style*="font-weight: 600"] {
-    font-size: 0.95em; /* Reduz o tamanho da fonte do nome */
-    margin-bottom: 2px;
-}
-
-.stream-item small {
-    font-size: 0.8em; /* Diminui a fonte das informações de ID e Rótulo */
-    line-height: 1.2; /* Ajusta a altura da linha */
-    margin-top: 1px;
-}
-
-/* Deixa os botões menores e mais juntos */
-.stream-item .flex-row {
-    margin-top: 5px; /* Reduz o espaço acima dos botões */
-    gap: 5px !important; /* Diminui o espaço entre os botões */
-}
-
-.stream-item button {
-    padding: 4px 8px; /* Reduz o preenchimento dos botões */
-    font-size: 0.85em; /* Diminui a fonte dos botões */
-    margin-bottom: 2px;
-}
-
-/* Ajusta o status de "Adicionado ao OBS" */
-.stream-item div[style*="margin-top: 2px"] {
-    margin-top: 1px;
-    font-size: 0.8em;
-}
+      .stream-item {
+          padding: 4px 6px;
+          margin-bottom: 5px;
+      }
+      .stream-item div[style*="font-weight: 600"] {
+          font-size: 0.7em;
+          margin-bottom: 1px;
+      }
+      .stream-item div[style*="margin-top: 2px"] {
+          display: inline !important;
+          margin-left: 8px; /* Adiciona um espaço à esquerda */
+      }
+      .stream-item div[style*="margin-top: 2px"]::before {
+          content: "|";
+          margin-right: 8px;
+          color: #6c757d; /* Cor cinza para o separador */
+      }
+      .stream-item small {
+          font-size: 0.8em;
+          line-height: 1.1;
+          margin-top: 1px;
+      }
+      .stream-item small[style*="display: block"] {
+          display: inline !important;
+      }
+      .stream-item .flex-row {
+          margin-top: 4px;
+          gap: 5px !important;
+      }
+      .stream-item button {
+          padding: 4px 8px;
+          font-size: 0.85em;
+          margin-bottom: 2px;
+      }
+      .stream-item div[style*="margin-top: 2px"] {
+          margin-top: 1px;
+          font-size: 0.8em;
+      }
       .stream-item, .layout-config-item {
         padding: 10px 12px;
         border-bottom: 1px solid #383b40;
@@ -565,7 +568,12 @@
         width: auto;
       }
       .layout-config-item .remove-layout-btn {
-        margin-left: 10px;
+        padding: 6px 8px !important;
+        font-size: 0.9em !important; 
+        background-color: #c82333 !important;
+      }
+      .layout-config-item .remove-layout-btn:hover {
+          background-color: #a01c28 !important;
       }
       .layout-specific-controls {
         padding: 10px;
