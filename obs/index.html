@@ -273,6 +273,41 @@
         background-color: transparent;
         margin: 0; 
       }
+/* Reduz o espaçamento geral do item de stream */
+.stream-item {
+    padding: 5px 8px; /* Reduz o preenchimento interno */
+    margin-bottom: 5px; /* Diminui a margem inferior */
+}
+
+/* Diminui o tamanho da fonte do nome do stream e das informações */
+.stream-item div[style*="font-weight: 600"] {
+    font-size: 0.95em; /* Reduz o tamanho da fonte do nome */
+    margin-bottom: 2px;
+}
+
+.stream-item small {
+    font-size: 0.8em; /* Diminui a fonte das informações de ID e Rótulo */
+    line-height: 1.2; /* Ajusta a altura da linha */
+    margin-top: 1px;
+}
+
+/* Deixa os botões menores e mais juntos */
+.stream-item .flex-row {
+    margin-top: 5px; /* Reduz o espaço acima dos botões */
+    gap: 5px !important; /* Diminui o espaço entre os botões */
+}
+
+.stream-item button {
+    padding: 4px 8px; /* Reduz o preenchimento dos botões */
+    font-size: 0.85em; /* Diminui a fonte dos botões */
+    margin-bottom: 2px;
+}
+
+/* Ajusta o status de "Adicionado ao OBS" */
+.stream-item div[style*="margin-top: 2px"] {
+    margin-top: 1px;
+    font-size: 0.8em;
+}
       .stream-item, .layout-config-item {
         padding: 10px 12px;
         border-bottom: 1px solid #383b40;
