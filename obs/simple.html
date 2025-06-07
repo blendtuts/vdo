@@ -1088,7 +1088,7 @@ function initializeVdoNinjaIframe() {
         vdoNinjaUrl += `view=${encodeURIComponent(streamIds.split(',').map(s => s.trim()).join(','))}`;
     }
     if (vdoNinjaPasswordInput.value) vdoNinjaUrl += `&password=${encodeURIComponent(vdoNinjaPasswordInput.value)}`;
-    vdoNinjaUrl += "&cleanoutput&dataonly&nocursor&nopush&debug&noaudio&novideo&cors="+encodeURIComponent(window.location.origin);
+    vdoNinjaUrl += "&cleanoutput&dataonly&nocursor&nopush&noaudio&novideo&cors="+encodeURIComponent(window.location.origin);
     logMessage(`Loading VDO.Ninja iframe: ${vdoNinjaUrl}`);
     vdoNinjaIframe.src = 'about:blank'; 
     vdoNinjaIframe.setAttribute('crossorigin', 'anonymous');

@@ -3206,7 +3206,7 @@
           )}`;
         }
         vdoNinjaUrl +=
-          "&cleanoutput&dataonly&nocursor&nopush&debug&noaudio&novideo&cors=" +
+          "&cleanoutput&dataonly&nocursor&nopush&noaudio&novideo&cors=" +
           encodeURIComponent(window.location.origin); 
         logMessage(`Initializing VDO.Ninja iframe with URL: ${vdoNinjaUrl}`, "logMessages.vdoNinja.initializingIframe", { url: vdoNinjaUrl });
         vdoNinjaIframe.src = "about:blank"; 
