@@ -856,9 +856,10 @@ button.hint {
 	position: fixed;
 	bottom: 0;
 	right: 0;
-	z-index: 10;
+	z-index: 1000;
 	font-size: 80%;
 	margin-right:100px;
+	pointer-events: auto;
 }
 
 .credits>a {
